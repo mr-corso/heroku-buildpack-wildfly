@@ -13,7 +13,7 @@ You can use the standard Heroku Java buildpack to compile your WAR file, and the
 ```sh-session
 $ heroku buildpacks:clear
 $ heroku buildpacks:add heroku/java
-$ heroku buildpacks:add https://github.com/mwiede/heroku-buildpack-wildfly
+$ heroku buildpacks:add https://github.com/mortenterhart/heroku-buildpack-wildfly
 ```
 
 Then deploy your Maven project with a `pom.xml`, Heroku will run the Java buildpack to compile it, and as long as you output a `target/*.war` file the Wildfly buildpack will run it.
