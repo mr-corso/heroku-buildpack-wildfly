@@ -28,7 +28,6 @@ fi
 
 WILDFLY_VERSION="${WILDFLY_VERSION:-16.0.0.Final}"
 JBOSS_HOME="${BUILD_DIR}/.jboss/wildfly-${WILDFLY_VERSION}"
-echo "JBOSS_HOME: $JBOSS_HOME"
 
 cd "$BUILD_DIR"
 
@@ -50,18 +49,18 @@ echo "-----> Installation of WildFly ${WILDFLY_VERSION} successful"
 
 echo -n "-----> Deploying war file(s)... "
 cp target/*.war "${JBOSS_HOME}/standalone/deployments/"
-echo "-----> Deployed"
+echo "done"
 
 echo "-----> Creating Process Configuration..."
 if [ -f "${BUILD_DIR}/Procfile" ]; then
-  echo "        - Using existing process types in ${BUILD_DIR}/Procfile"
+  echo "        - Using existing process types in Procfile"
 else
   cat << EOF > "${BUILD_DIR}/Procfile"
 web: \$JBOSS_HOME/bin/standalone.sh -b 0.0.0.0 -Djboss.http.port=\$PORT
 EOF
 fi
 
-cat << EOF > "${BUILD_DIR}/.profile.d/jboss.sh"
+cat << EOF > "${BUILD_DIR}/.profile.d/buildpack-wildfly-jboss.sh"
 export JBOSS_HOME="\${HOME}/.jboss/wildfly-${WILDFLY_VERSION}"
 export WILDFLY_VERSION="${WILDFLY_VERSION}"
 EOF
