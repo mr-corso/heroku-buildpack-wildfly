@@ -27,7 +27,7 @@ if [ -f "${VERSION_PROPERTIES}" ]; then
 fi
 
 WILDFLY_VERSION="${WILDFLY_VERSION:-16.0.0.Final}"
-JBOSS_HOME="${BUILD_DIR}/.jboss/wildfly-${WILDFLY_VERSION}"
+JBOSS_HOME=".jboss/wildfly-${WILDFLY_VERSION}"
 
 cd "$BUILD_DIR"
 
@@ -61,6 +61,6 @@ EOF
 fi
 
 cat << EOF > "${BUILD_DIR}/.profile.d/buildpack-wildfly-jboss.sh"
-export JBOSS_HOME="\${HOME}/.jboss/wildfly-${WILDFLY_VERSION}"
+export JBOSS_HOME="${JBOSS_HOME}"
 export WILDFLY_VERSION="${WILDFLY_VERSION}"
 EOF
