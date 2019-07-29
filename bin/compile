@@ -23,16 +23,18 @@ install_java_with_overlay "${BUILD_DIR}"
 VERSION_PROPERTIES="${BUILD_DIR}/system.properties"
 if [ -f "${VERSION_PROPERTIES}" ]; then
   WILDFLY_VERSION="$(grep "^[^#]" "${VERSION_PROPERTIES}" | grep -E "wildfly\.version[[:blank:]]*=[[:blank:]]*[A-Za-z0-9\.]+$" | sed "s/^[^=]*=//")"
+  echo "-----> Using WildFly version ${WILDFLY_VERSION}"
 fi
 
 WILDFLY_VERSION="${WILDFLY_VERSION:-16.0.0.Final}"
-JBOSS_HOME="${HOME}/.jboss/wildfly-${WILDFLY_VERSION}"
+JBOSS_HOME="${BUILD_DIR}/.jboss/wildfly-${WILDFLY_VERSION}"
+echo "JBOSS_HOME: $JBOSS_HOME"
 
 cd "$BUILD_DIR"
 
-mkdir -p .jboss
+mkdir -p ".jboss"
 
-echo -n "-----> Installing Wildfly ${WILDFLY_VERSION}..."
+echo -n "-----> Installing WildFly ${WILDFLY_VERSION}..."
 WILDFLY_DOWNLOAD_URL="https://download.jboss.org/wildfly/${WILDFLY_VERSION}/wildfly-${WILDFLY_VERSION}.zip"
 curl --retry 3 -O "${WILDFLY_DOWNLOAD_URL}"
 echo "-----> Downloaded"
@@ -60,5 +62,6 @@ EOF
 fi
 
 cat << EOF > "${BUILD_DIR}/.profile.d/jboss.sh"
-export JBOSS_HOME=${JBOSS_HOME}
+export JBOSS_HOME="\${HOME}/.jboss/wildfly-${WILDFLY_VERSION}"
+export WILDFLY_VERSION="${WILDFLY_VERSION}"
 EOF
