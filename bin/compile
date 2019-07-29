@@ -61,6 +61,6 @@ EOF
 fi
 
 cat << EOF > "${BUILD_DIR}/.profile.d/buildpack-wildfly-jboss.sh"
-export JBOSS_HOME="${JBOSS_HOME}"
-export WILDFLY_VERSION="${WILDFLY_VERSION}"
+export JBOSS_HOME=${JBOSS_HOME}
+export WILDFLY_VERSION=${WILDFLY_VERSION}
 EOF
