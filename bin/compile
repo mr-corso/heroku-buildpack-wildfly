@@ -4,13 +4,15 @@
 # fail fast
 set -e
 
-BP_DIR="$(cd $(dirname $0)/..; pwd)" # absolute path
+BP_DIR="$(cd "$(dirname $0)/.."; pwd)" # absolute path
 BIN_DIR="$BP_DIR/bin"
 
 # parse args
 BUILD_DIR="$1"
 CACHE_DIR="$2"
 ENV_DIR="$3"
+
+source "${BP_DIR}/lib/commons.sh"
 
 JVM_COMMON_BUILDPACK="${JVM_COMMON_BUILDPACK:-"https://codon-buildpacks.s3.amazonaws.com/buildpacks/heroku/jvm-common.tgz"}"
 mkdir -p /tmp/jvm-common
@@ -35,9 +37,9 @@ mkdir -p ".jboss"
 
 echo "-----> Installing WildFly ${WILDFLY_VERSION} ..."
 WILDFLY_DOWNLOAD_URL="https://download.jboss.org/wildfly/${WILDFLY_VERSION}/wildfly-${WILDFLY_VERSION}.zip"
-curl --retry 3 -O "${WILDFLY_DOWNLOAD_URL}"
+curl --retry 3 -O "${WILDFLY_DOWNLOAD_URL}" 2>&1 | indent
 echo "-----> Downloaded"
-WILDFLY_SHA1="$(curl --retry 3 "${WILDFLY_DOWNLOAD_URL}.sha1")"
+WILDFLY_SHA1="$(curl --retry 3 "${WILDFLY_DOWNLOAD_URL}.sha1" 2>&1 | indent)"
 sha1sum "wildfly-${WILDFLY_VERSION}.zip" | grep "${WILDFLY_SHA1}" > /dev/null 2>&1
 echo "-----> Verified"
 unzip -q "wildfly-${WILDFLY_VERSION}.zip"
