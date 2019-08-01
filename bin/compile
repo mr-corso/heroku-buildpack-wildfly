@@ -39,7 +39,7 @@ echo "-----> Installing WildFly ${WILDFLY_VERSION} ..."
 WILDFLY_DOWNLOAD_URL="https://download.jboss.org/wildfly/${WILDFLY_VERSION}/wildfly-${WILDFLY_VERSION}.zip"
 curl --retry 3 -O "${WILDFLY_DOWNLOAD_URL}" 2>&1 | indent
 echo "-----> Downloaded"
-WILDFLY_SHA1="$(curl --retry 3 "${WILDFLY_DOWNLOAD_URL}.sha1" 2>&1 | indent)"
+WILDFLY_SHA1="$(curl --retry 3 "${WILDFLY_DOWNLOAD_URL}.sha1")"
 sha1sum "wildfly-${WILDFLY_VERSION}.zip" | grep "${WILDFLY_SHA1}" > /dev/null 2>&1
 echo "-----> Verified"
 unzip -q "wildfly-${WILDFLY_VERSION}.zip"
