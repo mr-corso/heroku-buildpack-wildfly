@@ -4,7 +4,7 @@
 # fail fast
 set -e
 
-BP_DIR="$(cd "$(dirname $0)/.."; pwd)" # absolute path
+BP_DIR="$(cd "$(dirname "$0")/.."; pwd)" # absolute path
 BIN_DIR="$BP_DIR/bin"
 
 # parse args
@@ -40,7 +40,7 @@ WILDFLY_DOWNLOAD_URL="https://download.jboss.org/wildfly/${WILDFLY_VERSION}/wild
 curl --retry 3 -O "${WILDFLY_DOWNLOAD_URL}" 2>&1 | indent
 echo "-----> Downloaded"
 WILDFLY_SHA1="$(curl --retry 3 "${WILDFLY_DOWNLOAD_URL}.sha1")"
-sha1sum "wildfly-${WILDFLY_VERSION}.zip" | grep "${WILDFLY_SHA1}" > /dev/null 2>&1
+sha1sum "wildfly-${WILDFLY_VERSION}.zip" | grep "${WILDFLY_SHA1}" >/dev/null 2>&1
 echo "-----> Verified"
 unzip -q "wildfly-${WILDFLY_VERSION}.zip"
 echo "-----> Extracted"
@@ -55,14 +55,14 @@ echo "done"
 
 echo "-----> Creating Process Configuration ..."
 if [ -f "${BUILD_DIR}/Procfile" ]; then
-  echo "        - Using existing process types in Procfile"
+  echo "        -> Using existing process types in Procfile"
 else
-  cat << EOF > "${BUILD_DIR}/Procfile"
+  cat <<EOF >"${BUILD_DIR}/Procfile"
 web: \$JBOSS_HOME/bin/standalone.sh -b 0.0.0.0 -Djboss.http.port=\$PORT
 EOF
 fi
 
-cat << EOF > "${BUILD_DIR}/.profile.d/buildpack-wildfly-jboss.sh"
+cat <<EOF >"${BUILD_DIR}/.profile.d/buildpack-wildfly-jboss.sh"
 export JBOSS_HOME="${HOME}/.jboss/wildfly-${WILDFLY_VERSION}"
 export WILDFLY_VERSION="${WILDFLY_VERSION}"
 EOF

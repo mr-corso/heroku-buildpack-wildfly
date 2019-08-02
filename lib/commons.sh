@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
 function indent() {
     local sed_command="s/^/       /"
