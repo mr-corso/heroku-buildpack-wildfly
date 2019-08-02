@@ -25,6 +25,8 @@ will deploy and run it on a Wildfly standalone instance.
 The location of the Wildfly server is stored in the `$JBOSS_HOME` environment
 variable.
 
+## Configuration
+
 ### Configuring the Wildfly version
 
 You can configure the Wildfly version by creating a file called `system.properties`
@@ -59,7 +61,7 @@ $ git push heroku master
 ...
 ```
 
-## Default Process type
+### Default Process type
 
 If your project doesn't contain a `Procfile`, it is automatically created by the
 Wildfly buildpack with the following process type:
