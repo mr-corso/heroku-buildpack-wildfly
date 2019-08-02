@@ -34,7 +34,7 @@ in the root directory of your project and setting the property `wildfly.version`
 wildfly.version=16.0.0.Final
 ```
 
-The buildpack will then download the appropriate Wildfly version and installed
+The buildpack will then download the appropriate Wildfly version and install
 it to the preferred location. The version is stored inside the `$WILDFLY_VERSION`
 environment variable.
 
