@@ -4,7 +4,7 @@
 # fail fast
 set -e
 
-BP_DIR="$(cd "$(dirname "$0")/.."; pwd)" # absolute path
+BP_DIR="$(cd "${0%/*}/.."; pwd)" # absolute path
 BIN_DIR="$BP_DIR/bin"
 
 # parse args
@@ -12,20 +12,21 @@ BUILD_DIR="$1"
 CACHE_DIR="$2"
 ENV_DIR="$3"
 
-source "${BP_DIR}/lib/commons.sh"
+# see lib/wildfly_utils.sh
+source "${BP_DIR}/lib/wildfly_utils.sh"
 
 JVM_COMMON_BUILDPACK="${JVM_COMMON_BUILDPACK:-"https://codon-buildpacks.s3.amazonaws.com/buildpacks/heroku/jvm-common.tgz"}"
 mkdir -p /tmp/jvm-common
 curl --retry 3 --silent --location "$JVM_COMMON_BUILDPACK" | tar xzm -C /tmp/jvm-common --strip-components=1
-. /tmp/jvm-common/bin/util
-. /tmp/jvm-common/bin/java
+source /tmp/jvm-common/bin/util
+source /tmp/jvm-common/bin/java
 
 install_java_with_overlay "${BUILD_DIR}"
 
 VERSION_PROPERTIES="${BUILD_DIR}/system.properties"
-if [ -f "${VERSION_PROPERTIES}" ]; then
-  WILDFLY_VERSION="$(grep "^[^#]" "${VERSION_PROPERTIES}" | grep -E "wildfly\.version[[:blank:]]*=[[:blank:]]*[A-Za-z0-9\.]+$" | sed "s/^[^=]*=//")"
-  echo "-----> Using WildFly version ${WILDFLY_VERSION}"
+use_wildfly_version "${VERSION_PROPERTIES}" WILDFLY_VERSION
+if [ "${WILDFLY_VERSION+set}" == "set" ]; then
+  status "Using WildFly version ${WILDFLY_VERSION}"
 fi
 
 WILDFLY_VERSION="${WILDFLY_VERSION:-16.0.0.Final}"
@@ -33,27 +34,27 @@ JBOSS_HOME="${BUILD_DIR}/.jboss/wildfly-${WILDFLY_VERSION}"
 
 cd "$BUILD_DIR"
 
-mkdir -p ".jboss"
+mkdir -p "${BUILD_DIR}/.jboss"
 
-echo "-----> Installing WildFly ${WILDFLY_VERSION} ..."
-WILDFLY_DOWNLOAD_URL="https://download.jboss.org/wildfly/${WILDFLY_VERSION}/wildfly-${WILDFLY_VERSION}.zip"
+WILDFLY_ZIP="wildfly-${WILDFLY_VERSION}.zip"
+
+status "Installing WildFly ${WILDFLY_VERSION} ..."
+WILDFLY_DOWNLOAD_URL="https://download.jboss.org/wildfly/${WILDFLY_VERSION}/${WILDFLY_ZIP}"
 curl --retry 3 -O "${WILDFLY_DOWNLOAD_URL}" 2>&1 | indent
-echo "-----> Downloaded"
+status "Downloaded"
 WILDFLY_SHA1="$(curl --retry 3 "${WILDFLY_DOWNLOAD_URL}.sha1")"
-sha1sum "wildfly-${WILDFLY_VERSION}.zip" | grep "${WILDFLY_SHA1}" >/dev/null 2>&1
-echo "-----> Verified"
-unzip -q "wildfly-${WILDFLY_VERSION}.zip"
-echo "-----> Extracted"
-mv "wildfly-${WILDFLY_VERSION}" "${JBOSS_HOME}"
-echo "-----> Moved"
+sha1sum "${WILDFLY_ZIP}" | grep "${WILDFLY_SHA1}" >/dev/null 2>&1
+status "Verified"
+unzip -d "${BUILD_DIR}/.jboss" -q "${WILDFLY_ZIP}"
+status "Extracted"
 rm "wildfly-${WILDFLY_VERSION}.zip"
-echo "-----> Installation of WildFly ${WILDFLY_VERSION} successful"
+status "Installation of WildFly ${WILDFLY_VERSION} successful"
 
-echo -n "-----> Deploying war file(s) ... "
+status_pending "Deploying war file(s)"
 cp target/*.war "${JBOSS_HOME}/standalone/deployments/"
-echo "done"
+status_done
 
-echo "-----> Creating Process Configuration ..."
+status "Creating Process Configuration ..."
 if [ -f "${BUILD_DIR}/Procfile" ]; then
   echo "        -> Using existing process types in Procfile"
 else
