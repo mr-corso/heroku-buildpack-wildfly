@@ -47,7 +47,7 @@ install_wildfly() {
         status "Using WildFly ${wildflyVersion} from cache"
     fi
 
-    status "Installing WildFly ${wildflyVersion} ..."
+    status_pending "Installing WildFly ${wildflyVersion}"
 
     # Make a copy of the zip file
     cp "${cacheDir}/${wildflyZip}" "${buildDir}"
@@ -65,7 +65,7 @@ install_wildfly() {
     unzip -d "${jbossDir}" -q "${buildDir}/${wildflyZip}"
     rm -f "${buildDir}/${wildflyZip}"
 
-    status "Installation of WildFly ${wildflyVersion} finished successfully"
+    status_done
 
     # Export environment variables
     export JBOSS_HOME="${jbossDir}/wildfly-${wildflyVersion}"
