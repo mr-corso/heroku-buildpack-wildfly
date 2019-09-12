@@ -20,7 +20,7 @@ install_wildfly() {
     fi
 
     # Identify WildFly version
-    local wildflyVersion="${2:-$(detect_wildfly_version "${buildDir}")}"
+    local wildflyVersion="${3:-$(detect_wildfly_version "${buildDir}")}"
 
     # Get WildFly url for the specific version
     local wildflyUrl="$(_get_wildfly_download_url "${wildflyVersion}")"
