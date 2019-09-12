@@ -31,6 +31,7 @@ variable.
 
 You can configure the Wildfly version by creating a file called `system.properties`
 in the root directory of your project and setting the property `wildfly.version`.
+The version has to be one of the defined ones from <https://wildfly.org/downloads.>
 
 ```properties
 wildfly.version=16.0.0.Final
@@ -56,8 +57,8 @@ $ git push heroku master
 ...
 -----> WildFly app detected
 -----> Using provided JDK
------> Using WildFly version 16.0.0.Final
------> Installing WildFly 16.0.0.Final ...
+...
+-----> Installing WildFly 16.0.0.Final...
 ...
 ```
 
