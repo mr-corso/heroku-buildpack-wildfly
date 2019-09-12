@@ -1,7 +1,20 @@
 #!/usr/bin/env bash
 #
-# It is recommended to use 'set -e' to abort execution on any command exiting
-# with a non-zero exit status so that execution will not continue on an error.
+# This script provides useful utility functions for the WildFly installation
+# on Heroku. It is used for the Heroku WildFly buildpack and can also be used
+# by other scripts and buildpacks by downloading and sourcing this script. The
+# JVM Common buildpack is loaded for various utility functions, but is only
+# downloaded if it wasn't downloaded yet.
+#
+# The functions in this script can identify a WildFly version specified in the
+# file 'system.properties', download the requested WildFly version and verify
+# its SHA1 checksum, validate the download URL, install WildFly, deploy the
+# WAR files previously built with the Heroku Java buildpack, create a default
+# process configuration and export the environment variables for the WildFly.
+#
+# When sourcing this script it is recommended to use 'set -e' to abort execution
+# on any command exiting with a non-zero exit status so that execution will not
+# continue on an error.
 #
 # shellcheck disable=SC1090,SC2155
 
@@ -19,30 +32,15 @@ install_wildfly() {
         return 1
     fi
 
-    # Identify WildFly version
+    # Identify WildFly versions
     local wildflyVersion="${3:-$(detect_wildfly_version "${buildDir}")}"
 
-    # Get WildFly url for the specific version
-    local wildflyUrl="$(_get_wildfly_download_url "${wildflyVersion}")"
+    # Specify zip filename to download to
     local wildflyZip="wildfly-${wildflyVersion}.zip"
 
     # Download WildFly to cache if not already existing
     if [ ! -f "${cacheDir}/${wildflyZip}" ]; then
-        # Validate the url for the specific version
-        if ! validate_wildfly_url "${wildflyUrl}" "${wildflyVersion}"; then
-            return 1
-        fi
-
-        status_pending "Downloading WildFly ${wildflyVersion} to cache"
-        curl --retry 3 --silent --location -o "${cacheDir}/${wildflyZip}" "${wildflyUrl}"
-        status_done
-
-        # Verify the checksum
-        status "Verifying SHA1 checksum"
-        local wildflySHA1="$(curl --retry 3 --silent --location "${wildflyUrl}.sha1")"
-        if ! verify_sha1_checksum "${wildflySHA1}" "${cacheDir}/${wildflyZip}"; then
-            return 1
-        fi
+        download_wildfly "${wildflyVersion}" "${cacheDir}/${wildflyZip}"
     else
         status "Using WildFly ${wildflyVersion} from cache"
     fi
@@ -77,6 +75,29 @@ install_wildfly() {
     _create_profile_script "${buildDir}" "${JBOSS_HOME}" "${JBOSS_CLI}" "${WILDFLY_VERSION}"
 }
 
+download_wildfly() {
+    local wildflyVersion="$1"
+    local targetFilename="$2"
+
+    local wildflyUrl="$(_get_wildfly_download_url "${wildflyVersion}")"
+
+    # Validate the url for the specific version
+    if ! validate_wildfly_url "${wildflyUrl}" "${wildflyVersion}"; then
+        return 1
+    fi
+
+    status_pending "Downloading WildFly ${wildflyVersion} to cache"
+    curl --retry 3 --silent --location --output "${targetFilename}" "${wildflyUrl}"
+    status_done
+
+    # Verify the checksum
+    status "Verifying SHA1 checksum"
+    local wildflySHA1="$(curl --retry 3 --silent --location "${wildflyUrl}.sha1")"
+    if ! verify_sha1_checksum "${wildflySHA1}" "${targetFilename}"; then
+        return 1
+    fi
+}
+
 detect_wildfly_version() {
     local buildDir="$1"
 
@@ -87,8 +108,9 @@ detect_wildfly_version() {
 
     local systemProperties="${buildDir}/system.properties"
     if [ -f "${systemProperties}" ]; then
-        if grep -E "^[[:blank:]]*[^#]" "${systemProperties}" | grep -Eq "wildfly\.version[[:blank:]]*="; then
-            local detectedVersion="$(grep -E "^[[:blank:]]*[^#]" "${systemProperties}" | \
+        if sed -E '/^[[:blank:]]*\#/d' "${systemProperties}" | \
+           grep -Eq "wildfly\.version[[:blank:]]*="; then
+            local detectedVersion="$(sed -E '/^[[:blank:]]*\#/d' "${systemProperties}" | \
                 grep -E "wildfly\.version[[:blank:]]*=[[:blank:]]*[A-Za-z0-9\.]+$" | \
                 sed "s/^[^=]*=//")"
             if [ -n "${detectedVersion}" ]; then
