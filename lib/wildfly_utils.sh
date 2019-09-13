@@ -324,13 +324,15 @@ _create_profile_script() {
     local jbossCli="$3"
     local wildflyVersion="$4"
 
-    status_pending "Create .profile.d script for environment variables"
-    cat > "${profileScript}" <<SCRIPT
+    if [ -d "${buildDir}/.profile.d" ]; then
+        status_pending "Creating .profile.d script for environment variables"
+        cat > "${profileScript}" <<SCRIPT
 export JBOSS_HOME="${jbossHome}"
 export JBOSS_CLI="${jbossCli}"
 export WILDFLY_VERSION="${wildflyVersion}"
 SCRIPT
-    status_done
+        status_done
+    fi
 }
 
 # Downloads the JVM Common Buildpack if not already existing and sources the
@@ -340,7 +342,7 @@ SCRIPT
 # Returns:
 #   always 0
 _load_jvm_common_buildpack() {
-    local JVM_COMMON_BUILDPACK_URL="${JVM_COMMON_BUILDPACK_URL:-"https://codon-buildpacks.s3.amazonaws.com/buildpacks/heroku/jvm-common.tgz"}"
+    local JVM_COMMON_BUILDPACK_URL="${JVM_COMMON_BUILDPACK_URL:-"https://buildpack-registry.s3.amazonaws.com/buildpacks/heroku/jvm.tgz"}"
 
     local jvmCommonDir="/tmp/jvm-common"
     if [ ! -d "${jvmCommonDir}" ]; then
