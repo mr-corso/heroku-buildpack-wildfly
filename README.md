@@ -35,7 +35,8 @@ git clone --quiet https://github.com/mortenterhart/heroku-buildpack-wildfly.git 
 source /tmp/heroku-buildpack-wildfly/lib/wildfly_utils.sh
 ```
 
-All buildpack functionalities are now present to the current context.
+All buildpack functionalities are now present to the current context. See the
+`lib/wildfly_utils.sh` script for all features offered by this buildpack.
 
 ## Configuration
 
