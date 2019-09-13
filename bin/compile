@@ -16,7 +16,7 @@ CACHE_DIR="$2"
 ENV_DIR="$3"
 
 # Load JVM Common buildpack
-JVM_COMMON_BUILDPACK_URL="${JVM_COMMON_BUILDPACK_URL:-"https://codon-buildpacks.s3.amazonaws.com/buildpacks/heroku/jvm-common.tgz"}"
+JVM_COMMON_BUILDPACK_URL="${JVM_COMMON_BUILDPACK_URL:-"https://buildpack-registry.s3.amazonaws.com/buildpacks/heroku/jvm.tgz"}"
 JVM_COMMON_DIR="/tmp/jvm-common"
 mkdir -p "${JVM_COMMON_DIR}"
 curl --retry 3 --silent --location "${JVM_COMMON_BUILDPACK_URL}" | tar xzm -C "${JVM_COMMON_DIR}" --strip-components=1
