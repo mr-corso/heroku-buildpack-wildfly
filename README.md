@@ -3,7 +3,7 @@
 This is a [Heroku Buildpack](https://devcenter.heroku.com/articles/buildpacks)
 for running [Wildfly AS](http://wildfly.org).
 
-## Usage
+## Standalone Usage
 
 Put your WAR file(s) in `target/` and deploy.
 
@@ -24,6 +24,18 @@ will deploy and run it on a Wildfly standalone instance.
 
 The location of the Wildfly server is stored in the `$JBOSS_HOME` environment
 variable.
+
+## Usage from a Buildpack
+
+This buildpack is designed to be used from within other buildpacks. The following
+code downloads and sources the buildpack:
+
+```bash
+git clone --quiet https://github.com/mortenterhart/heroku-buildpack-wildfly.git /tmp/heroku-buildpack-wildfly
+source /tmp/heroku-buildpack-wildfly/lib/wildfly_utils.sh
+```
+
+All buildpack functionalities are now present to the current context.
 
 ## Configuration
 
