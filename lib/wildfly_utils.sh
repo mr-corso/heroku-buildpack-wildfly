@@ -12,6 +12,10 @@
 # WAR files previously built with the Heroku Java buildpack, create a default
 # process configuration and export the environment variables for the WildFly.
 #
+# The download artifacts for the WildFly server are cached between builds in
+# the CACHE_DIR argument that is provided to the 'bin/compile' script in order
+# to speed up consecutive builds.
+#
 # When sourcing this script it is recommended to use 'set -e' to abort execution
 # on any command exiting with a non-zero exit status so that execution will not
 # continue on an error.
@@ -20,6 +24,19 @@
 
 DEFAULT_WILDFLY_VERSION="16.0.0.Final"
 
+# Installs the WildFly server by downloading and caching the zip file and deploys
+# the WAR files from the target/ folder to the server instance. It creates a
+# default process configuration if none is provided and exports the home and
+# version of the WildFly server inside environment variables.
+#
+# Params:
+#   $1:  buildDir        The Heroku build directory
+#   $2:  cacheDir        The Heroku cache directory
+#   $3:  wildflyVersion  (optional) the WildFly version to download
+#
+# Returns:
+#  0: The installation was successful
+#  1: An error occured
 install_wildfly() {
     local buildDir="$1"
     local cacheDir="$2"
@@ -75,6 +92,18 @@ install_wildfly() {
     _create_profile_script "${buildDir}" "${JBOSS_HOME}" "${JBOSS_CLI}" "${WILDFLY_VERSION}"
 }
 
+# Downloads a WildFly instance of a specified version to a specified location
+# and verifies it SHA1 checksum. In addition, the URL for the passed version
+# is validated for correctness.
+#
+# Params:
+#   $1:  wildflyVersion  The version to download. Must be a defined version
+#                        from https://wildfly.org/downloads.
+#   $2:  targetFilename  The filename to which to write the zip file
+#
+# Returns:
+#   0: The WildFly was downloaded successfully
+#   1: There was a validation or SHA1 verification error
 download_wildfly() {
     local wildflyVersion="$1"
     local targetFilename="$2"
@@ -98,6 +127,14 @@ download_wildfly() {
     fi
 }
 
+# Detects the WildFly version from the 'system.properties' file or chooses
+# the default version if this file does not exist.
+#
+# Params:
+#   $1:  buildDir  The Heroku build directory
+#
+# Returns:
+#   stdout: the detected WildFly version
 detect_wildfly_version() {
     local buildDir="$1"
 
@@ -126,6 +163,13 @@ detect_wildfly_version() {
     fi
 }
 
+# Builds the WildFly download url for the specified version.
+#
+# Params:
+#   $1:  wildflyVersion  The version to download
+#
+# Returns:
+#   stdout: the download url
 _get_wildfly_download_url() {
     local wildflyVersion="$1"
 
@@ -135,6 +179,17 @@ _get_wildfly_download_url() {
     echo "${wildflyDownloadUrl}"
 }
 
+# Validates the built download url for WildFly by making a simple HTTP request
+# and checking for status 200. If the request does not return a 200 code the
+# version number is invalid.
+#
+# Params:
+#   $1:  wildflyUrl      The WildFly download url
+#   $2:  wildflyVersion  The WildFly version
+#
+# Returns:
+#   0: The given url is a valid download url
+#   1: The url is invalid because the specified version is not defined
 validate_wildfly_url() {
     local wildflyUrl="$1"
     local wildflyVersion="$2"
@@ -151,6 +206,17 @@ version ${DEFAULT_WILDFLY_VERSION}."
     fi
 }
 
+# Verifies the SHA-1 checksum that is provided for the WildFly zip file. The
+# checksum needs to be downloaded from the WildFly download page and can be
+# passed to this function in order to check it against the zip file.
+#
+# Params:
+#   $1:  checksum  the downloaded SHA-1 checksum for the zip file
+#   $2:  file      the path to the zip file
+#
+# Returns:
+#   0: The checksum matches the zip file
+#   1: The checksum is invalid
 verify_sha1_checksum() {
     local checksum="$1"
     local file="$2"
@@ -163,24 +229,69 @@ verify_sha1_checksum() {
     return 0
 }
 
+# Returns the HTTP status code for the specified url. All other output from
+# curl is discarded. This can be used to check the validity of urls, for
+# example the WildFly download url.
+#
+# Params:
+#   $1:  url  the url for which to get the status code
+#
+# Returns:
+#   stdout: the HTTP status code
 _get_url_status() {
     local url="$1"
     curl --retry 3 --silent --head --write-out "%{http_code}" --output /dev/null --location "${url}"
 }
 
+# Copies all WAR files in the target/ directory to the WildFly directory for
+# deployment. The function fails if the target/ directory does not exist or
+# there are no WAR files in that directory.
+#
+# Params:
+#   $1:  buildDir   The Heroku build directory
+#   $2:  jbossHome  The WildFly root directory
+#
+# Returns:
+#   0: The WAR files were deployed successfully
+#   1: The deployment failed due to an error
 _deploy_war_files() {
     local buildDir="$1"
     local jbossHome="$2"
 
+    if [ ! -d "${buildDir}/target" ]; then
+        error_return "Could not deploy WAR files: Target directory does not exist"
+        return 1
+    fi
+
+    local war_glob=("${buildDir}"/target/*.war)
+    if [ "${war_glob[*]}" == "${buildDir}/target/*.war" ]; then
+        error_return "No WAR files found in target/ directory.
+        
+Please ensure your Maven build configuration in the pom.xml is creating
+the necessary WAR file(s) for your application under the target/ directory.
+
+For help on the usage of the maven-war-plugin visit
+https://maven.apache.org/plugins/maven-war-plugin/usage.html."
+        return 1
+    fi
+
     status "Deploying WAR file(s):"
     local war
-    for war in target/*.war; do
-        echo "  - ${war#target/}" | indent
+    for war in "${buildDir}"/target/*.war; do
+        echo "  - ${war#*target/}" | indent
         cp "${war}" "${JBOSS_HOME}/standalone/deployments"
     done
     echo "done" | indent
 }
 
+# Checks if a web process configuration in the Procfile exists and creates a
+# web process type if necessary.
+#
+# Params:
+#   $1:  buildDir  The Heroku build directory
+#
+# Returns:
+#   exit code 0 and a process configuration in the Procfile
 _create_process_configuration() {
     local buildDir="$1"
     local procFile="${buildDir}/Procfile"
@@ -194,6 +305,18 @@ _create_process_configuration() {
     fi
 }
 
+# Creates a .profile.d script to load the environment variables for the
+# WildFly server when the dyno starts up. The values for the environment
+# variables are passed as arguments.
+#
+# Params:
+#   $1:  buildDir        The Heroku build directory
+#   $2:  jbossHome       The WildFly root directory
+#   $3:  jbossCli        The path to the jboss-cli.sh script
+#   $4:  wildflyVersion  The WildFly version
+#
+# Returns:
+#   exit status 0 and the .profile.d script
 _create_profile_script() {
     local buildDir="$1"
     local profileScript="${buildDir}/.profile.d/wildfly.sh"
@@ -210,6 +333,12 @@ SCRIPT
     status_done
 }
 
+# Downloads the JVM Common Buildpack if not already existing and sources the
+# utility functions used throughout this script such as 'indent', 'error_return'
+# and 'status'.
+#
+# Returns:
+#   always 0
 _load_jvm_common_buildpack() {
     local JVM_COMMON_BUILDPACK_URL="${JVM_COMMON_BUILDPACK_URL:-"https://codon-buildpacks.s3.amazonaws.com/buildpacks/heroku/jvm-common.tgz"}"
 
@@ -222,4 +351,5 @@ _load_jvm_common_buildpack() {
     source "${jvmCommonDir}/bin/util"
 }
 
+# Load the JVM Common buildpack
 _load_jvm_common_buildpack

@@ -26,8 +26,10 @@ source "${JVM_COMMON_DIR}/bin/java"
 # see lib/wildfly_utils.sh
 source "${BP_DIR}/lib/wildfly_utils.sh"
 
+# Ensure a JDK is installed
 install_java_with_overlay "${BUILD_DIR}"
 
 cd "${BUILD_DIR}"
 
+# Install WildFly to the build directory
 install_wildfly "${BUILD_DIR}" "${CACHE_DIR}"
