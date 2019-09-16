@@ -20,8 +20,8 @@ JVM_COMMON_BUILDPACK_URL="${JVM_COMMON_BUILDPACK_URL:-"https://buildpack-registr
 JVM_COMMON_DIR="/tmp/jvm-common"
 mkdir -p "${JVM_COMMON_DIR}"
 curl --retry 3 --silent --location "${JVM_COMMON_BUILDPACK_URL}" | tar xzm -C "${JVM_COMMON_DIR}" --strip-components=1
-source "${JVM_COMMON_DIR}/bin/util"
 source "${JVM_COMMON_DIR}/bin/java"
+source "${JVM_COMMON_DIR}/bin/util"
 
 # see lib/wildfly_utils.sh
 source "${BP_DIR}/lib/wildfly_utils.sh"

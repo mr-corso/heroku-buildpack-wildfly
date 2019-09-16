@@ -270,7 +270,7 @@ _deploy_war_files() {
 Please ensure your Maven build configuration in the pom.xml is creating
 the necessary WAR file(s) for your application under the target/ directory.
 
-For help on the usage of the maven-war-plugin visit
+For help on the usage of the 'maven-war-plugin' visit
 https://maven.apache.org/plugins/maven-war-plugin/usage.html."
         return 1
     fi
