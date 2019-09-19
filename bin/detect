@@ -1,8 +1,18 @@
 #!/usr/bin/env bash
 # bin/detect <build-dir>
 
+# Parse args
 BUILD_DIR="$1"
 
+# Prints a red error message that is passed via stdin to the
+# console and exits with an error.
+#
+# Input:
+#   stdin:   the error message
+#
+# Returns:
+#   stdout:  the error message on the console with an exit
+#            status of 1
 error() {
     local c="2,999 s/^/ !     /"
     # send all of our output to stderr
@@ -19,6 +29,7 @@ error() {
     exit 1
 }
 
+# Check if any WAR files exist in the target directory
 warFiles=("${BUILD_DIR}"/target/*.war)
 if [ "${warFiles[*]}" == "${BUILD_DIR}/target/*.war" ]; then
     error <<EOF
@@ -49,7 +60,6 @@ configuration.
 For more information refer to the official usage guide:
 https://maven.apache.org/plugins/maven-war-plugin/usage.html
 EOF
-    exit 1
 fi
 
 echo "WildFly"
