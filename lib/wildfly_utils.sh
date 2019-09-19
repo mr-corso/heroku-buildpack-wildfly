@@ -139,27 +139,46 @@ detect_wildfly_version() {
     local buildDir="$1"
 
     if [ ! -d "${buildDir}" ]; then
-        error_return "Could not detect WildFly version: Build directory does not exist"
+        error_return "Could not detect WildFly version: Build directory does not exist" >&2
         return 1
     fi
 
     local systemProperties="${buildDir}/system.properties"
     if [ -f "${systemProperties}" ]; then
-        if sed -E '/^[[:blank:]]*\#/d' "${systemProperties}" | \
-           grep -Eq "wildfly\.version[[:blank:]]*="; then
-            local detectedVersion="$(sed -E '/^[[:blank:]]*\#/d' "${systemProperties}" | \
-                grep -E "wildfly\.version[[:blank:]]*=[[:blank:]]*[A-Za-z0-9\.]+$" | \
-                sed "s/^[^=]*=//")"
-            if [ -n "${detectedVersion}" ]; then
-                echo "${detectedVersion}"
-            else
-                echo "${DEFAULT_WILDFLY_VERSION}"
-            fi
+        local detectedVersion="$(get_app_system_property "${systemProperties}" "wildfly.version")"
+        if [ -n "${detectedVersion}" ]; then
+            echo "${detectedVersion}"
         else
             echo "${DEFAULT_WILDFLY_VERSION}"
         fi
     else
         echo "${DEFAULT_WILDFLY_VERSION}"
+    fi
+}
+
+# Reads a system property from a properties file and outputs its value.
+# Outputs nothing if the given property name is not defined or the file
+# does not exist. The file and property arguments are required. They cause
+# an error if they were not defined.
+#
+# Params:
+#   $1:  file      the properties file
+#   $2:  property  the name of the property
+#
+# Returns:
+#   stdout: the value of the property if existing or nothing
+get_app_system_property() {
+    local file="${1?"No file specified"}"
+    local property="${2?"No property specified"}"
+
+    # Escape property for regex
+    local escaped_property="${property//./\\.}"
+
+    if [ -f "${file}" ]; then
+        # Remove comments and print property value
+        sed -E '/^[[:blank:]]*\#/d' "${file}" | \
+        grep -E "^[[:blank:]]*${escaped_property}[[:blank:]]*=" | \
+        sed -E "s/[[:blank:]]*${escaped_property}[[:blank:]]*=[[:blank:]]*//"
     fi
 }
 
@@ -196,7 +215,7 @@ validate_wildfly_url() {
 
     if [ "$(_get_url_status "${wildflyUrl}")" != "200" ]; then
         error_return "Unsupported WildFly version: ${wildflyVersion}
-        
+
 Please check your system.properties file to ensure wildfly.version
 is one of the defined versions from https://wildfly.org/downloads.
 
@@ -266,7 +285,7 @@ _deploy_war_files() {
     local war_glob=("${buildDir}"/target/*.war)
     if [ "${war_glob[*]}" == "${buildDir}/target/*.war" ]; then
         error_return "No WAR files found in target/ directory.
-        
+
 Please ensure your Maven build configuration in the pom.xml is creating
 the necessary WAR file(s) for your application under the target/ directory.
 
