@@ -345,8 +345,8 @@ _create_process_configuration() {
 }
 
 # Creates a .profile.d script to load the environment variables for the
-# WildFly server when the dyno starts up. The values for the environment
-# variables are passed as arguments.
+# WildFly server when the dyno starts up. The values come from previously
+# set environment variables.
 #
 # Params:
 #   $1:  buildDir        The Heroku build directory
