@@ -349,7 +349,7 @@ _create_process_configuration() {
 # set environment variables.
 #
 # Params:
-#   $1:  buildDir        The Heroku build directory
+#   $1:  buildDir  The Heroku build directory
 #
 # Returns:
 #   exit status 0 and the .profile.d script
