@@ -24,6 +24,28 @@
 
 DEFAULT_WILDFLY_VERSION="16.0.0.Final"
 
+# Downloads the JVM Common Buildpack if not already existing and sources the
+# utility functions used throughout this script such as 'indent', 'error_return'
+# and 'status'.
+#
+# Returns:
+#   always 0
+_load_jvm_common_buildpack() {
+    local JVM_COMMON_BUILDPACK_URL="${JVM_COMMON_BUILDPACK_URL:-"https://buildpack-registry.s3.amazonaws.com/buildpacks/heroku/jvm.tgz"}"
+
+    local jvmCommonDir="/tmp/jvm-common"
+    if [ ! -d "${jvmCommonDir}" ]; then
+        mkdir -p "${jvmCommonDir}"
+        curl --retry 3 --silent --location "${JVM_COMMON_BUILDPACK_URL}" | tar xzm -C "${jvmCommonDir}" --strip-components=1
+    fi
+
+    source "${jvmCommonDir}/bin/util"
+}
+
+# Load the JVM Common buildpack at the beginning to prevent overriding
+# functions from this buildpack
+_load_jvm_common_buildpack
+
 # Installs the WildFly server by downloading and caching the zip file and deploys
 # the WAR files from the target/ folder to the server instance. It creates a
 # default process configuration if none is provided and exports the home and
@@ -87,9 +109,9 @@ install_wildfly() {
     export JBOSS_CLI="${JBOSS_HOME}/bin/jboss-cli.sh"
     export WILDFLY_VERSION="${WILDFLY_VERSION:-${wildflyVersion}}"
 
-    _deploy_war_files "${buildDir}" "${JBOSS_HOME}"
-    _create_process_configuration "${buildDir}" "${JBOSS_HOME}" "${WILDFLY_VERSION}"
-    _create_profile_script "${buildDir}" "${JBOSS_HOME}" "${JBOSS_CLI}" "${WILDFLY_VERSION}"
+    _deploy_war_files "${buildDir}"
+    _create_process_configuration "${buildDir}"
+    _create_wildfly_profile_script "${buildDir}"
 }
 
 # Downloads a WildFly instance of a specified version to a specified location
@@ -268,14 +290,12 @@ _get_url_status() {
 #
 # Params:
 #   $1:  buildDir   The Heroku build directory
-#   $2:  jbossHome  The WildFly root directory
 #
 # Returns:
 #   0: The WAR files were deployed successfully
 #   1: The deployment failed due to an error
 _deploy_war_files() {
     local buildDir="$1"
-    local jbossHome="$2"
 
     if [ ! -d "${buildDir}/target" ]; then
         error_return "Could not deploy WAR files: Target directory does not exist"
@@ -330,47 +350,20 @@ _create_process_configuration() {
 #
 # Params:
 #   $1:  buildDir        The Heroku build directory
-#   $2:  jbossHome       The WildFly root directory
-#   $3:  jbossCli        The path to the jboss-cli.sh script
-#   $4:  wildflyVersion  The WildFly version
 #
 # Returns:
 #   exit status 0 and the .profile.d script
-_create_profile_script() {
+_create_wildfly_profile_script() {
     local buildDir="$1"
     local profileScript="${buildDir}/.profile.d/wildfly.sh"
-    local jbossHome="$2"
-    local jbossCli="$3"
-    local wildflyVersion="$4"
 
     if [ -d "${buildDir}/.profile.d" ]; then
-        status_pending "Creating .profile.d script for environment variables"
+        status_pending "Creating .profile.d script for WildFly environment variables"
         cat > "${profileScript}" <<SCRIPT
-export JBOSS_HOME="${jbossHome}"
-export JBOSS_CLI="${jbossCli}"
-export WILDFLY_VERSION="${wildflyVersion}"
+export JBOSS_HOME="${JBOSS_HOME}"
+export JBOSS_CLI="${JBOSS_CLI}"
+export WILDFLY_VERSION="${WILDFLY_VERSION}"
 SCRIPT
         status_done
     fi
 }
-
-# Downloads the JVM Common Buildpack if not already existing and sources the
-# utility functions used throughout this script such as 'indent', 'error_return'
-# and 'status'.
-#
-# Returns:
-#   always 0
-_load_jvm_common_buildpack() {
-    local JVM_COMMON_BUILDPACK_URL="${JVM_COMMON_BUILDPACK_URL:-"https://buildpack-registry.s3.amazonaws.com/buildpacks/heroku/jvm.tgz"}"
-
-    local jvmCommonDir="/tmp/jvm-common"
-    if [ ! -d "${jvmCommonDir}" ]; then
-        mkdir -p "${jvmCommonDir}"
-        curl --retry 3 --silent --location "${JVM_COMMON_BUILDPACK_URL}" | tar xzm -C "${jvmCommonDir}" --strip-components=1
-    fi
-
-    source "${jvmCommonDir}/bin/util"
-}
-
-# Load the JVM Common buildpack
-_load_jvm_common_buildpack
