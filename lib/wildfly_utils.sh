@@ -289,7 +289,7 @@ _get_url_status() {
 # there are no WAR files in that directory.
 #
 # Params:
-#   $1:  buildDir   The Heroku build directory
+#   $1:  buildDir  The Heroku build directory
 #
 # Returns:
 #   0: The WAR files were deployed successfully
