@@ -63,11 +63,11 @@ install_wildfly() {
     local buildDir="$1"
     local cacheDir="$2"
     if [ ! -d "${buildDir}" ]; then
-        error_return "Could not install WildFly: Build directory does not exist"
+        error_return "Failed to install WildFly: Build directory does not exist: ${buildDir}"
         return 1
     fi
     if [ ! -d "${cacheDir}" ]; then
-        error_return "Could not install WildFly: Cache directory does not exist"
+        error_return "Failed to install WildFly: Cache directory does not exist: ${cacheDir}"
         return 1
     fi
 
@@ -161,7 +161,7 @@ detect_wildfly_version() {
     local buildDir="$1"
 
     if [ ! -d "${buildDir}" ]; then
-        error_return "Could not detect WildFly version: Build directory does not exist" >&2
+        error_return "Failed to detect WildFly version: Build directory does not exist: ${buildDir}" >&2
         return 1
     fi
 
@@ -360,8 +360,9 @@ _create_wildfly_profile_script() {
     if [ -d "${buildDir}/.profile.d" ]; then
         status_pending "Creating .profile.d script for WildFly environment variables"
         cat > "${profileScript}" <<SCRIPT
-export JBOSS_HOME="${JBOSS_HOME}"
-export JBOSS_CLI="${JBOSS_CLI}"
+# Environment variables for the WildFly installation
+export JBOSS_HOME="\${HOME}/.jboss/wildfly-${WILDFLY_VERSION}"
+export JBOSS_CLI="\${JBOSS_HOME}/bin/jboss-cli.sh"
 export WILDFLY_VERSION="${WILDFLY_VERSION}"
 SCRIPT
         status_done
