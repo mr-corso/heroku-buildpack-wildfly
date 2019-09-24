@@ -46,7 +46,7 @@ All buildpack functionalities are now present to the current context. See the
 
 You can configure the Wildfly version by creating a file called `system.properties`
 in the root directory of your project and setting the property `wildfly.version`.
-The version has to be one of the defined ones from <https://wildfly.org/downloads.>
+The version has to be one of the defined ones from <https://wildfly.org/downloads>.
 
 ```properties
 wildfly.version=16.0.0.Final
