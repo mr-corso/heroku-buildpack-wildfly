@@ -8,7 +8,6 @@ set -e
 
 # Get the absolute path of the buildpack directory
 BP_DIR="$(cd "${0%/*}/.."; pwd)"
-BIN_DIR="${BP_DIR}/bin"
 
 # Parse args
 BUILD_DIR="$1"
@@ -23,8 +22,12 @@ curl --retry 3 --silent --location "${JVM_COMMON_BUILDPACK_URL}" | tar xzm -C "$
 source "${JVM_COMMON_DIR}/bin/java"
 source "${JVM_COMMON_DIR}/bin/util"
 
-# see lib/wildfly.sh
+# see lib/ directory for scripts
 source "${BP_DIR}/lib/wildfly.sh"
+source "${BP_DIR}/lib/environment.sh"
+
+# Export config vars from ENV_DIR
+export_env_dir "${ENV_DIR}"
 
 # Ensure a JDK is installed
 install_java_with_overlay "${BUILD_DIR}"

@@ -357,14 +357,13 @@ _create_wildfly_profile_script() {
     local buildDir="$1"
     local profileScript="${buildDir}/.profile.d/wildfly.sh"
 
-    if [ -d "${buildDir}/.profile.d" ]; then
-        status_pending "Creating .profile.d script for WildFly environment variables"
-        cat > "${profileScript}" <<SCRIPT
+    status_pending "Creating .profile.d script for WildFly environment variables"
+    mkdir -p "${buildDir}/.profile.d"
+    cat > "${profileScript}" <<SCRIPT
 # Environment variables for the WildFly installation
 export JBOSS_HOME="\${HOME}/.jboss/wildfly-${WILDFLY_VERSION}"
 export JBOSS_CLI="\${JBOSS_HOME}/bin/jboss-cli.sh"
 export WILDFLY_VERSION="${WILDFLY_VERSION}"
 SCRIPT
-        status_done
-    fi
+    status_done
 }
