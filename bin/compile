@@ -23,8 +23,8 @@ curl --retry 3 --silent --location "${JVM_COMMON_BUILDPACK_URL}" | tar xzm -C "$
 source "${JVM_COMMON_DIR}/bin/java"
 source "${JVM_COMMON_DIR}/bin/util"
 
-# see lib/wildfly_utils.sh
-source "${BP_DIR}/lib/wildfly_utils.sh"
+# see lib/wildfly.sh
+source "${BP_DIR}/lib/wildfly.sh"
 
 # Ensure a JDK is installed
 install_java_with_overlay "${BUILD_DIR}"

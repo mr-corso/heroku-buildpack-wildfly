@@ -15,7 +15,7 @@ then have WildFly run it:
 ```bash
 $ heroku buildpacks:clear
 $ heroku buildpacks:add heroku/java
-$ heroku buildpacks:add https://github.com/mortenterhart/heroku-buildpack-wildfly
+$ heroku buildpacks:add mterhart/wildfly
 ```
 
 Then deploy your Maven project with a `pom.xml`, Heroku will run the Java buildpack
@@ -31,12 +31,14 @@ This buildpack is designed to be used from within other buildpacks. The followin
 code downloads and sources the buildpack:
 
 ```bash
-git clone --quiet https://github.com/mortenterhart/heroku-buildpack-wildfly.git /tmp/heroku-buildpack-wildfly
-source /tmp/heroku-buildpack-wildfly/lib/wildfly_utils.sh
+WILDFLY_BUILDPACK_URL="https://buildpack-registry.s3.amazonaws.com/buildpacks/mterhart/wildfly.tgz"
+mkdir -p /tmp/wildfly-buildpack
+curl --retry 3 --silent --location "${WILDFLY_BUILDPACK_URL}" | tar xzm -C /tmp/wildfly-buildpack --strip-components=1
+source /tmp/wildfly-buildpack/lib/wildfly.sh
 ```
 
 All buildpack functionalities are now present to the current context. See the
-`lib/wildfly_utils.sh` script for all features offered by this buildpack.
+`lib/wildfly.sh` script for all features offered by this buildpack.
 
 ## Configuration
 
