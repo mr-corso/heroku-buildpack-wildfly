@@ -386,8 +386,8 @@ _create_wildfly_export_script() {
 
     cat > "${buildDir}/export" <<SCRIPT
 # Environment variables for subsequent buildpacks
-export JBOSS_HOME="\${JBOSS_HOME:-"${buildDir}/.jboss/wildfly-${WILDFLY_VERSION}"}"
-export JBOSS_CLI="\${JBOSS_CLI:-"\${JBOSS_HOME}/bin/jboss-cli.sh"}"
-export WILDFLY_VERSION="\${WILDFLY_VERSION:-"${WILDFLY_VERSION}"}"
+export JBOSS_HOME="${buildDir}/.jboss/wildfly-${WILDFLY_VERSION}"
+export JBOSS_CLI="\${JBOSS_HOME}/bin/jboss-cli.sh"
+export WILDFLY_VERSION="${WILDFLY_VERSION}"
 SCRIPT
 }
