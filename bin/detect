@@ -47,7 +47,7 @@ application with these commands:
 
   heroku buildpacks:clear
   heroku buildpacks:add heroku/java
-  heroku buildpacks:add https://github.com/mortenterhart/heroku-buildpack-wildfly
+  heroku buildpacks:add mterhart/wildfly
 
 The order of the builpacks is important here: First the application is
 built using 'heroku/java' and then this buildpack installs a WildFly
