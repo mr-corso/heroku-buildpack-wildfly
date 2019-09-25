@@ -112,6 +112,7 @@ install_wildfly() {
     _deploy_war_files "${buildDir}"
     _create_process_configuration "${buildDir}"
     _create_wildfly_profile_script "${buildDir}"
+    _create_wildfly_export_script "${buildDir}"
 }
 
 # Downloads a WildFly instance of a specified version to a specified location
@@ -345,8 +346,8 @@ _create_process_configuration() {
 }
 
 # Creates a .profile.d script to load the environment variables for the
-# WildFly server when the dyno starts up. The values come from previously
-# set environment variables.
+# WildFly server when the dyno starts up. These variables are provided
+# for the deployment.
 #
 # Params:
 #   $1:  buildDir  The Heroku build directory
@@ -366,4 +367,27 @@ export JBOSS_CLI="\${JBOSS_HOME}/bin/jboss-cli.sh"
 export WILDFLY_VERSION="${WILDFLY_VERSION}"
 SCRIPT
     status_done
+}
+
+# Creates an export script for subsequent buildpacks to load the
+# WildFly environment that is setup through this buildpack. This
+# is important because the paths used in the build differ from
+# those that are used after deployment. The build paths use the
+# build directory as prefix whereas the productive variables
+# start with '$HOME' which is '/app'.
+#
+# Params:
+#   $1:  buildDir  The Heroku build directory
+#
+# Returns:
+#   exit status 0 and the export script
+_create_wildfly_export_script() {
+    local buildDir="$1"
+
+    cat > "${buildDir}/export" <<SCRIPT
+# Environment variables for subsequent buildpacks
+export JBOSS_HOME="\${JBOSS_HOME:-"${buildDir}/.jboss/wildfly-${WILDFLY_VERSION}"}"
+export JBOSS_CLI="\${JBOSS_CLI:-"\${JBOSS_HOME}/bin/jboss-cli.sh"}"
+export WILDFLY_VERSION="\${WILDFLY_VERSION:-"${WILDFLY_VERSION}"}"
+SCRIPT
 }
