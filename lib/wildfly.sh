@@ -282,6 +282,7 @@ verify_sha1_checksum() {
 #   stdout: the HTTP status code
 _get_url_status() {
     local url="$1"
+
     curl --retry 3 --silent --head --write-out "%{http_code}" --output /dev/null --location "${url}"
 }
 
