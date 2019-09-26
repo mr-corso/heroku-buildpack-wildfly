@@ -14,8 +14,8 @@
 #
 # Params:
 #   $1:  envDir     The Heroku directory for config vars
-#   $2:  whitelist  A list of variables to export explicitly
-#   $3:  blacklist  A list of variables not to export
+#   $2:  whitelist  (optional) A list of variables to export explicitly
+#   $3:  blacklist  (optional) A list of variables not to export
 #
 # Returns:
 #   exit status 0
@@ -39,7 +39,8 @@ export_env_dir() {
 # Additional variables can be added with the regex parameter.
 #
 # Params:
-#   $1:  regex  Custom regex for blacklisting environment variables
+#   $1:  regex  (optional) Custom regex for blacklisting environment
+#               variables
 #
 # Returns:
 #   stdout: the resulting regex
