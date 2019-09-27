@@ -27,6 +27,10 @@ variable.
 
 ### Creating a Heroku app with this Buildpack
 
+The `mterhart/wildfly` identifier will always pick the latest published version
+of this buildpack which is recommended to use. You can directly create a new
+Heroku application using the latest version with this command:
+
 ```bash
 heroku create --buildpack mterhart/wildfly
 ```
