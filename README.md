@@ -43,7 +43,7 @@ Heroku application using the latest version with this command:
 heroku create --buildpack mterhart/wildfly
 ```
 
-### Specifying a Revision of the Buildpack
+### Specifying an older Revision of the Buildpack
 
 If you want to stick to a specific revision of this buildpack, you can use the
 buildpack URL along with a tag. For example, if you pick the tag `v3` you need
