@@ -24,27 +24,26 @@
 
 DEFAULT_WILDFLY_VERSION="16.0.0.Final"
 
-# Downloads the JVM Common Buildpack if not already existing and sources the
-# utility functions used throughout this script such as 'indent', 'error_return'
-# and 'status'.
+# Loads script files from the lib/ directory and other buildpacks that this
+# script file depends on. This script uses functions coming from other script
+# files or buildpacks which are loaded before to prevent overriding functions
+# from this script.
 #
 # Returns:
 #   always 0
-_load_jvm_common_buildpack() {
-    local JVM_COMMON_BUILDPACK_URL="${JVM_COMMON_BUILDPACK_URL:-"https://buildpack-registry.s3.amazonaws.com/buildpacks/heroku/jvm.tgz"}"
+_load_dependent_scripts() {
+    local scriptDir="$(cd "${BASH_SOURCE[0]%/*}" && pwd)"
 
-    local jvmCommonDir="/tmp/jvm-common"
-    if [ ! -d "${jvmCommonDir}" ]; then
-        mkdir -p "${jvmCommonDir}"
-        curl --retry 3 --silent --location "${JVM_COMMON_BUILDPACK_URL}" | tar xzm -C "${jvmCommonDir}" --strip-components=1
-    fi
+    # Load dependent buildpacks
+    source "${scriptDir}/load_buildpacks.sh"
 
-    source "${jvmCommonDir}/bin/util"
+    # Load scripts
+    source "${scriptDir}/errors.sh"
 }
 
-# Load the JVM Common buildpack at the beginning to prevent overriding
-# functions from this buildpack
-_load_jvm_common_buildpack
+# Load other script files and unset the function
+_load_dependent_scripts
+unset -f _load_dependent_scripts
 
 # Installs the WildFly server by downloading and caching the zip file and deploys
 # the WAR files from the target/ folder to the server instance. It creates a
@@ -237,13 +236,7 @@ validate_wildfly_url() {
     local wildflyVersion="$2"
 
     if [ "$(_get_url_status "${wildflyUrl}")" != "200" ]; then
-        error_return "Unsupported WildFly version: ${wildflyVersion}
-
-Please check your system.properties file to ensure wildfly.version
-is one of the defined versions from https://wildfly.org/downloads.
-
-You can also remove the system.properties file to install the default
-version ${DEFAULT_WILDFLY_VERSION}."
+        error_unsupported_wildfly_version "${wildflyVersion}" "${DEFAULT_WILDFLY_VERSION}"
         return 1
     fi
 }
@@ -306,13 +299,7 @@ _deploy_war_files() {
 
     local war_glob=("${buildDir}"/target/*.war)
     if [ "${war_glob[*]}" == "${buildDir}/target/*.war" ]; then
-        error_return "No WAR files found in target/ directory.
-
-Please ensure your Maven build configuration in the pom.xml is creating
-the necessary WAR file(s) for your application under the target/ directory.
-
-For help on the usage of the 'maven-war-plugin' visit
-https://maven.apache.org/plugins/maven-war-plugin/usage.html."
+        error_no_war_files_found
         return 1
     fi
 
