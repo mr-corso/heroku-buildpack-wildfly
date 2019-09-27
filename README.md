@@ -46,8 +46,8 @@ heroku create --buildpack mterhart/wildfly
 ### Specifying a Revision of the Buildpack
 
 If you want to stick to a specific revision of this buildpack, you can use the
-buildpack URL along with a tag. For example, if you pick the tag `v3` the command
-for adding the buildpack would be:
+buildpack URL along with a tag. For example, if you pick the tag `v3` you need
+to append it to the URL when adding to your application:
 
 ```bash
 heroku buildpacks:add https://github.com/mortenterhart/heroku-buildpack-wildfly#v3
