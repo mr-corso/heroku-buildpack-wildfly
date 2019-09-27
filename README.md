@@ -13,9 +13,9 @@ You can use the standard Heroku Java buildpack to compile your WAR file, and
 then have WildFly run it:
 
 ```bash
-$ heroku buildpacks:clear
-$ heroku buildpacks:add heroku/java
-$ heroku buildpacks:add mterhart/wildfly
+heroku buildpacks:clear
+heroku buildpacks:add heroku/java
+heroku buildpacks:add mterhart/wildfly
 ```
 
 Then deploy your Maven project with a `pom.xml`, Heroku will run the Java buildpack
@@ -24,6 +24,22 @@ will deploy and run it on a Wildfly standalone instance.
 
 The location of the Wildfly server is stored in the `$JBOSS_HOME` environment
 variable.
+
+### Creating a Heroku app with this Buildpack
+
+```bash
+heroku create --buildpack mterhart/wildfly
+```
+
+### Specifying a Revision of the Buildpack
+
+If you want to stick to a specific revision of this buildpack, you can use the
+buildpack URL along with a tag. For example, if you pick the tag `v3` the command
+for adding the buildpack would be:
+
+```bash
+heroku buildpacks:add https://github.com/mortenterhart/heroku-buildpack-wildfly#v3
+```
 
 ## Usage from a Buildpack
 
@@ -34,6 +50,7 @@ code downloads and sources the buildpack:
 WILDFLY_BUILDPACK_URL="https://buildpack-registry.s3.amazonaws.com/buildpacks/mterhart/wildfly.tgz"
 mkdir -p /tmp/wildfly-buildpack
 curl --retry 3 --silent --location "${WILDFLY_BUILDPACK_URL}" | tar xzm -C /tmp/wildfly-buildpack --strip-components=1
+
 source /tmp/wildfly-buildpack/lib/wildfly.sh
 ```
 
