@@ -1,10 +1,13 @@
 #!/usr/bin/env bash
 # bin/compile <build-dir> <cache-dir> <env-dir>
 #
-# shellcheck disable=SC1090,SC1091
+# shellcheck disable=SC1090,SC2155
 
-# fail fast
+# Fail fast
 set -e
+
+# Inherit ERR traps in functions
+set -E
 
 # Get the absolute path of the buildpack directory
 BP_DIR="$(cd "${0%/*}/.."; pwd)"
@@ -13,6 +16,14 @@ BP_DIR="$(cd "${0%/*}/.."; pwd)"
 BUILD_DIR="$1"
 CACHE_DIR="$2"
 ENV_DIR="$3"
+
+# Buildpack Log Prefix
+export BPLOG_PREFIX="buildpack.wildfly"
+
+# Save logs in the cache directory with the
+# current UNIX timestamp
+mkdir -p "${CACHE_DIR}/logs"
+export BUILDPACK_LOG_FILE="${CACHE_DIR}/logs/${BPLOG_PREFIX}_$(date "+%s").log"
 
 # Load JVM Common buildpack
 JVM_COMMON_BUILDPACK_URL="${JVM_COMMON_BUILDPACK_URL:-"https://buildpack-registry.s3.amazonaws.com/buildpacks/heroku/jvm.tgz"}"
