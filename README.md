@@ -69,6 +69,16 @@ source /tmp/wildfly-buildpack/lib/wildfly.sh
 All buildpack functionalities are now present to the current context. See the
 `lib/wildfly.sh` script for all features offered by this buildpack.
 
+### Specifying a specific Revision of the Buildpack
+
+You can use another revision of this buildpack for your own one. Simply change the
+buildpack URL and append a version specifier to the filename, for example `v10`.
+Then change the line in your script to the following:
+
+```bash
+WILDFLY_BUILDPACK_URL="https://buildpack-registry.s3.amazonaws.com/buildpacks/mterhart/wildfly-v10.tgz"
+```
+
 ## Configuration
 
 ### Configuring the Wildfly version
