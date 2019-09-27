@@ -72,6 +72,7 @@ install_wildfly() {
 
     # Identify WildFly versions
     local wildflyVersion="${3:-$(detect_wildfly_version "${buildDir}")}"
+    mcount "version" "${wildflyVersion}"
 
     # Specify zip filename to download to
     local wildflyZip="wildfly-${wildflyVersion}.zip"
@@ -82,6 +83,8 @@ install_wildfly() {
     else
         status "Using WildFly ${wildflyVersion} from cache"
     fi
+
+    local installStart="$(nowms)"
 
     status_pending "Installing WildFly ${wildflyVersion}"
 
@@ -102,6 +105,7 @@ install_wildfly() {
     rm -f "${buildDir}/${wildflyZip}"
 
     status_done
+    mtime "installation.time" "${installStart}"
 
     # Export environment variables
     export JBOSS_HOME="${jbossDir}/wildfly-${wildflyVersion}"
@@ -131,22 +135,28 @@ download_wildfly() {
     local targetFilename="$2"
 
     local wildflyUrl="$(_get_wildfly_download_url "${wildflyVersion}")"
+    mcount "download.url" "${wildflyUrl}"
 
     # Validate the url for the specific version
     if ! validate_wildfly_url "${wildflyUrl}" "${wildflyVersion}"; then
+        mcount "download.url.invalid"
         return 1
     fi
 
+    local -i downloadStart="$(nowms)"
     status_pending "Downloading WildFly ${wildflyVersion} to cache"
     curl --retry 3 --silent --location --output "${targetFilename}" "${wildflyUrl}"
     status_done
+    mtime "download.time" "${downloadStart}"
 
     # Verify the checksum
     status "Verifying SHA1 checksum"
     local wildflySHA1="$(curl --retry 3 --silent --location "${wildflyUrl}.sha1")"
     if ! verify_sha1_checksum "${wildflySHA1}" "${targetFilename}"; then
+        mcount "sha1.verification.fail"
         return 1
     fi
+    mcount "sha1.verification.success"
 }
 
 # Detects the WildFly version from the 'system.properties' file or chooses
@@ -306,8 +316,11 @@ _deploy_war_files() {
     status "Deploying WAR file(s):"
     local war
     for war in "${buildDir}"/target/*.war; do
-        echo "  - ${war#*target/}" | indent
+        local warBasename="${war#*target/}"
+        echo "  - ${warBasename}" | indent
         cp "${war}" "${JBOSS_HOME}/standalone/deployments"
+
+        mcount "deploy.${warBasename%.war}.success"
     done
     echo "done" | indent
 }
@@ -327,9 +340,11 @@ _create_process_configuration() {
     status_pending "Creating process configuration"
     if [ -f "${procFile}" ] && grep -q "^web:" "${procFile}"; then
         echo " Using existing process type 'web' in Procfile"
+        mcount "existing.process.type.web"
     else
         echo "web: \${JBOSS_HOME}/bin/standalone.sh -b 0.0.0.0 -Djboss.http.port=\$PORT" >> "${procFile}"
         echo " done"
+        mcount "creating.process.type.web"
     fi
 }
 
@@ -355,6 +370,7 @@ export JBOSS_CLI="\${JBOSS_HOME}/bin/jboss-cli.sh"
 export WILDFLY_VERSION="${WILDFLY_VERSION}"
 SCRIPT
     status_done
+    mcount "profile.script"
 }
 
 # Creates an export script for subsequent buildpacks to load the
@@ -378,4 +394,5 @@ export JBOSS_HOME="${buildDir}/.jboss/wildfly-${WILDFLY_VERSION}"
 export JBOSS_CLI="\${JBOSS_HOME}/bin/jboss-cli.sh"
 export WILDFLY_VERSION="${WILDFLY_VERSION}"
 SCRIPT
+    mcount "export.script"
 }
