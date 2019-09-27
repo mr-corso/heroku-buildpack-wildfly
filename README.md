@@ -1,7 +1,15 @@
 # Heroku Wildfly Buildpack
 
+[![Heroku Elements](https://img.shields.io/badge/Heroku_Elements-published-6762A6)][heroku-elements]
+[![Buildpack Registry](https://img.shields.io/badge/Buildpack_Registry-mterhart/wildfly-6762A6)][buildpack-registry]
+[![Latest GitHub Tag](https://img.shields.io/github/v/tag/mortenterhart/heroku-buildpack-wildfly?color=blue&label=Latest%20Version&logo=github)][github-tags]
+
+[heroku-elements]: https://elements.heroku.com/buildpacks/mortenterhart/heroku-buildpack-wildfly "Buildpack on Heroku Elements"
+[buildpack-registry]: https://devcenter.heroku.com/articles/buildpack-registry "Buildpack Registry"
+[github-tags]: https://github.com/mortenterhart/heroku-buildpack-wildfly/tags "Latest GitHub Tags"
+
 This is a [Heroku Buildpack](https://devcenter.heroku.com/articles/buildpacks)
-for running [Wildfly AS](http://wildfly.org) on Heroku.
+for running the [Wildfly Application Server](http://wildfly.org) on Heroku.
 
 ## Standalone Usage
 
@@ -104,5 +112,5 @@ If your project doesn't contain a `Procfile`, it is automatically created by the
 Wildfly buildpack with the following process type:
 
 ```yaml
-web: $JBOSS_HOME/bin/standalone.sh -b 0.0.0.0 -Djboss.http.port=$PORT
+web: ${JBOSS_HOME}/bin/standalone.sh -b 0.0.0.0 -Djboss.http.port=$PORT
 ```
