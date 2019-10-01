@@ -24,6 +24,11 @@
 
 DEFAULT_WILDFLY_VERSION="16.0.0.Final"
 
+# We need the buildpack directory here to create the export script for the
+# WildFly environment variables. For this, resolve the buildpack root
+# directory as an absolute path.
+BUILDPACK_DIR="$(cd "${BASH_SOURCE[0]%/*}/.." && pwd)"
+
 # Loads script files from the lib/ directory and other buildpacks that this
 # script file depends on. This script uses functions coming from other script
 # files or buildpacks which are loaded before to prevent overriding functions
@@ -115,7 +120,7 @@ install_wildfly() {
     _deploy_war_files "${buildDir}"
     _create_process_configuration "${buildDir}"
     _create_wildfly_profile_script "${buildDir}"
-    _create_wildfly_export_script "${buildDir}"
+    _create_wildfly_export_script "${BUILDPACK_DIR}"
 }
 
 # Downloads a WildFly instance of a specified version to a specified location
@@ -381,14 +386,14 @@ SCRIPT
 # start with '$HOME' which is '/app'.
 #
 # Params:
-#   $1:  buildDir  The Heroku build directory
+#   $1:  buildpackDir  The root directory of this buildpack
 #
 # Returns:
 #   exit status 0 and the export script
 _create_wildfly_export_script() {
-    local buildDir="$1"
+    local buildpackDir="$1"
 
-    cat > "${buildDir}/export" <<SCRIPT
+    cat > "${buildpackDir}/export" <<SCRIPT
 # Environment variables for subsequent buildpacks
 export JBOSS_HOME="${buildDir}/.jboss/wildfly-${WILDFLY_VERSION}"
 export JBOSS_CLI="\${JBOSS_HOME}/bin/jboss-cli.sh"
