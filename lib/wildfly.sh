@@ -373,6 +373,9 @@ _create_wildfly_profile_script() {
 export JBOSS_HOME="\${HOME}/.jboss/wildfly-${WILDFLY_VERSION}"
 export JBOSS_CLI="\${JBOSS_HOME}/bin/jboss-cli.sh"
 export WILDFLY_VERSION="${WILDFLY_VERSION}"
+
+# Set the log manager to prevent WFLYCTL0013 error
+export JAVA_TOOL_OPTIONS="\${JAVA_TOOL_OPTIONS} -Djava.util.logging.manager=org.jboss.logmanager.LogManager"
 SCRIPT
     status_done
     mcount "profile.script"
