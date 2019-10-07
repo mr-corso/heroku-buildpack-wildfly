@@ -124,3 +124,70 @@ Wildfly buildpack with the following process type:
 ```yaml
 web: ${JBOSS_HOME}/bin/standalone.sh -b 0.0.0.0 -Djboss.http.port=$PORT
 ```
+
+## Caveats
+
+### `Could not load Logmanager "org.jboss.logmanager.LogManager"`
+
+If you came across the error messages shown below in your log you might have
+activated the [Heroku Exec](https://devcenter.heroku.com/articles/exec) feature
+which enables an SSH access to your dyno. This is a known issue with this feature
+causing the WildFly server to crash right after startup.
+
+```txt
+Could not load Logmanager "org.jboss.logmanager.LogManager"
+java.lang.ClassNotFoundException: org.jboss.logmanager.LogManager
+    at ...
+
+WARNING: Failed to load the specified log manager class org.jboss.logmanager.LogManager
+
+ERROR: WFLYCTL0013: Operation ("parallel-extension-add") failed - address: ([])
+java.lang.RuntimeException: WFLYCTL0079: Failed initializing module org.jboss.as.logging
+Caused by: java.util.concurrent.ExecutionException: java.lang.IllegalStateException: WFLYLOG0078: The logging subsystem requires the log manager to be org.jboss.logmanager.LogManager. The subsystem has not be initialized and cannot be used. To use JBoss Log Manager you must add the system property "java.util.logging.manager" and set it to "org.jboss.logmanager.LogManager"
+```
+
+The Heroku Exec feature modifies the `JAVA_TOOL_OPTIONS` environment variable
+that provides additional Java command-line options to the Java process. This is
+probably due to the Java diagnostic tools that the Exec feature provisions. The
+Exec feature adds the following command-line options to the environment variable.
+
+```diff
+Picked up JAVA_TOOL_OPTIONS:
+  -XX:+UseContainerSupport
+  -Xmx300m
+  -Xss512k
+  -XX:CICompilerCount=2
+  -Dfile.encoding=UTF-8
++ -Dcom.sun.management.jmxremote
++ -Dcom.sun.management.jmxremote.port=1098
++ -Dcom.sun.management.jmxremote.rmi.port=1099
++ -Dcom.sun.management.jmxremote.ssl=false
++ -Dcom.sun.management.jmxremote.authenticate=false
++ -Dcom.sun.management.jmxremote.local.only=true
++ -Djava.rmi.server.hostname=172.17.45.138
++ -Djava.rmi.server.port=1099
+  -Djava.util.logging.manager=org.jboss.logmanager.LogManager
+```
+
+These additional options cause the WildFly server to crash during startup. You
+can easily check if you have activated the Heroku Exec feature by looking for
+the following in your log:
+
+```txt
+heroku[web.1]: Starting process with command `$JBOSS_HOME/bin/standalone.sh -b 0.0.0.0 -Djboss.http.port=17971`
+app[web.1]: [heroku-exec] Starting
+```
+
+The issue can be resolved by disabling the Heroku Exec feature using the
+following command:
+
+```txt
+heroku features:disable runtime-heroku-exec
+```
+
+If you have an app in a private space you also need to remove the Heroku Exec
+buildpack:
+
+```txt
+heroku buildpacks:remove heroku/exec
+```
