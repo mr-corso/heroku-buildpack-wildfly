@@ -167,7 +167,7 @@ Picked up JAVA_TOOL_OPTIONS:
 + -Dcom.sun.management.jmxremote.local.only=true
 + -Djava.rmi.server.hostname=172.17.45.138
 + -Djava.rmi.server.port=1099
-  -Djava.util.logging.manager=org.jboss.logmanager.LogManager
+  -Djava.util.logging.manager=org.jboss.logmanager.LogManager  # added by this buildpack
 ```
 
 These additional options cause the WildFly server to crash during startup. You
