@@ -149,7 +149,8 @@ Caused by: java.util.concurrent.ExecutionException: java.lang.IllegalStateExcept
 The Heroku Exec feature modifies the `JAVA_TOOL_OPTIONS` environment variable
 that provides additional Java command-line options to the Java process. This is
 probably due to the Java diagnostic tools that the Exec feature provisions. The
-Exec feature adds the following command-line options to the environment variable.
+Exec feature adds the following command-line options to the environment variable
+(shown from the log):
 
 ```diff
 Picked up JAVA_TOOL_OPTIONS:
