@@ -9,7 +9,11 @@
 [github-releases]: https://github.com/mortenterhart/heroku-buildpack-wildfly/releases "GitHub Releases"
 
 This is a [Heroku Buildpack](https://devcenter.heroku.com/articles/buildpacks)
-for running the [Wildfly Application Server](http://wildfly.org) on Heroku.
+for running the [WildFly Application Server](http://wildfly.org) on Heroku.
+
+If you are experiencing troubles with this buildpack or the WildFly server,
+please see the [Caveats](#caveats) section below first and otherwise file an
+issue.
 
 ## Standalone Usage
 
@@ -125,7 +129,7 @@ Wildfly buildpack with the following process type:
 web: ${JBOSS_HOME}/bin/standalone.sh -b 0.0.0.0 -Djboss.http.port=$PORT
 ```
 
-## Caveats
+## Troubleshooting
 
 ### `Could not load Logmanager "org.jboss.logmanager.LogManager"`
 
@@ -146,11 +150,11 @@ java.lang.RuntimeException: WFLYCTL0079: Failed initializing module org.jboss.as
 Caused by: java.util.concurrent.ExecutionException: java.lang.IllegalStateException: WFLYLOG0078: The logging subsystem requires the log manager to be org.jboss.logmanager.LogManager. The subsystem has not be initialized and cannot be used. To use JBoss Log Manager you must add the system property "java.util.logging.manager" and set it to "org.jboss.logmanager.LogManager"
 ```
 
-The Heroku Exec feature modifies the `JAVA_TOOL_OPTIONS` environment variable
-that provides additional Java command-line options to the Java process. This is
-probably due to the Java diagnostic tools that the Exec feature provisions. The
-Exec feature adds the following command-line options to the environment variable
-(shown from the log):
+The Heroku Exec feature modifies the [`JAVA_TOOL_OPTIONS`][java-tool-options]
+environment variable that provides additional Java command-line options to the
+Java process. This is probably due to the Java diagnostic tools that the Exec
+feature provisions. The Exec feature adds the following command-line options
+to the environment variable (as shown from the log):
 
 ```diff
 Picked up JAVA_TOOL_OPTIONS:
@@ -169,6 +173,9 @@ Picked up JAVA_TOOL_OPTIONS:
 + -Djava.rmi.server.port=1099
   -Djava.util.logging.manager=org.jboss.logmanager.LogManager  # added by this buildpack
 ```
+
+More information about the `JAVA_TOOL_OPTIONS` environment variable can be
+obtained at <https://docs.oracle.com/javase/8/docs/technotes/guides/troubleshoot/envvars002.html>.
 
 These additional options cause the WildFly server to crash during startup. You
 can easily check if you have activated the Heroku Exec feature by looking for
@@ -192,3 +199,5 @@ buildpack:
 ```txt
 heroku buildpacks:remove heroku/exec
 ```
+
+[java-tool-options]: https://docs.oracle.com/javase/8/docs/technotes/guides/troubleshoot/envvars002.html "More information on JAVA_TOOL_OPTIONS"
