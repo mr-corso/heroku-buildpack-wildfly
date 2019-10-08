@@ -43,6 +43,7 @@ _load_dependent_scripts() {
     source "${scriptDir}/load_buildpacks.sh"
 
     # Load scripts
+    source "${scriptDir}/debug.sh"
     source "${scriptDir}/errors.sh"
 }
 
@@ -64,8 +65,8 @@ unset -f _load_dependent_scripts
 #  0: The installation was successful
 #  1: An error occured
 install_wildfly() {
-    local buildDir="$1"
-    local cacheDir="$2"
+    local buildDir="$1" && debug_var "buildDir"
+    local cacheDir="$2" && debug_var "cacheDir"
     if [ ! -d "${buildDir}" ]; then
         error_return "Failed to install WildFly: Build directory does not exist: ${buildDir}"
         return 1
@@ -77,7 +78,7 @@ install_wildfly() {
 
     # Identify WildFly versions
     local wildflyVersion="${3:-$(detect_wildfly_version "${buildDir}")}"
-    mcount "version" "${wildflyVersion}"
+    debug_mmeasure "version" "${wildflyVersion}"
 
     # Specify zip filename to download to
     local wildflyZip="wildfly-${wildflyVersion}.zip"
@@ -93,12 +94,10 @@ install_wildfly() {
 
     status_pending "Installing WildFly ${wildflyVersion}"
 
-    # Make a copy of the zip file
-    cp "${cacheDir}/${wildflyZip}" "${buildDir}"
-
     # Remove the .jboss directory if it exists
     local jbossDir="${buildDir}/.jboss"
     if [ -d "${jbossDir}" ]; then
+        debug "Removing existing .jboss directory: ${jbossDir}"
         rm -rf "${jbossDir}"
     fi
 
@@ -106,11 +105,11 @@ install_wildfly() {
     mkdir -p "${jbossDir}"
 
     # Unzip the contents
-    unzip -d "${jbossDir}" -q "${buildDir}/${wildflyZip}"
-    rm -f "${buildDir}/${wildflyZip}"
+    debug_command "unzip -d \"${jbossDir}\" -q \"${buildDir}/${wildflyZip}\""
+    unzip -d "${jbossDir}" -q "${cacheDir}/${wildflyZip}"
 
     status_done
-    mtime "installation.time" "${installStart}"
+    debug_mtime "installation.time" "${installStart}"
 
     # Export environment variables
     export JBOSS_HOME="${jbossDir}/wildfly-${wildflyVersion}"
@@ -140,7 +139,7 @@ download_wildfly() {
     local targetFilename="$2"
 
     local wildflyUrl="$(_get_wildfly_download_url "${wildflyVersion}")"
-    mcount "download.url" "${wildflyUrl}"
+    debug_mmeasure "download.url" "${wildflyUrl}"
 
     # Validate the url for the specific version
     if ! validate_wildfly_url "${wildflyUrl}" "${wildflyVersion}"; then
@@ -152,7 +151,7 @@ download_wildfly() {
     status_pending "Downloading WildFly ${wildflyVersion} to cache"
     curl --retry 3 --silent --location --output "${targetFilename}" "${wildflyUrl}"
     status_done
-    mtime "download.time" "${downloadStart}"
+    debug_mtime "download.time" "${downloadStart}"
 
     # Verify the checksum
     status "Verifying SHA1 checksum"
@@ -176,6 +175,8 @@ detect_wildfly_version() {
     local buildDir="$1"
 
     if [ ! -d "${buildDir}" ]; then
+        # Redirect error message to stderr to prevent
+        # being captured by command substitutions
         error_return "Failed to detect WildFly version: Build directory does not exist: ${buildDir}" >&2
         return 1
     fi
@@ -312,15 +313,17 @@ _deploy_war_files() {
         return 1
     fi
 
-    local war_glob=("${buildDir}"/target/*.war)
-    if [ "${war_glob[*]}" == "${buildDir}/target/*.war" ]; then
+    local warFiles=("${buildDir}"/target/*.war)
+    if [ "${warFiles[*]}" == "${buildDir}/target/*.war" ]; then
         error_no_war_files_found
         return 1
     fi
 
+    debug "Found following WAR file(s): ${warFiles[*]}"
+
     status "Deploying WAR file(s):"
     local war
-    for war in "${buildDir}"/target/*.war; do
+    for war in "${warFiles[@]}"; do
         local warBasename="${war#*target/}"
         echo "  - ${warBasename}" | indent
         cp "${war}" "${JBOSS_HOME}/standalone/deployments"
@@ -351,6 +354,8 @@ _create_process_configuration() {
         echo " done"
         mcount "creating.process.type.web"
     fi
+
+    debug_file "${procFile}"
 }
 
 # Creates a .profile.d script to load the environment variables for the
@@ -379,6 +384,7 @@ export JAVA_TOOL_OPTIONS="\${JAVA_TOOL_OPTIONS} -Djava.util.logging.manager=org.
 SCRIPT
     status_done
     mcount "profile.script"
+    debug_file "${profileScript}"
 }
 
 # Creates an export script for subsequent buildpacks to load the
@@ -403,4 +409,5 @@ export JBOSS_CLI="\${JBOSS_HOME}/bin/jboss-cli.sh"
 export WILDFLY_VERSION="${WILDFLY_VERSION}"
 SCRIPT
     mcount "export.script"
+    debug_file "${buildpackDir}/export"
 }
