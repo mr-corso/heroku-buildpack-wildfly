@@ -1,0 +1,17 @@
+---
+language: bash
+
+branches:
+  only:
+    - master
+
+env:
+  global:
+    - TESTRUNNER="/tmp/testrunner"
+    - SHUNIT_HOME="/tmp/shunit2-2.1.6"
+
+install: bash etc/ci-setup.sh
+
+script: ${TESTRUNNER}/bin/run -c .
+
+after_script: [ -n "${HEROKU_API_KEY}" ] && heroku keys:remove "$USER@$(hostname)"
