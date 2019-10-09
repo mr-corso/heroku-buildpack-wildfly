@@ -105,7 +105,7 @@ install_wildfly() {
     mkdir -p "${jbossDir}"
 
     # Unzip the contents
-    debug_command "unzip -d \"${jbossDir}\" -q \"${buildDir}/${wildflyZip}\""
+    debug_command "unzip -d \"${jbossDir}\" -q \"${cacheDir}/${wildflyZip}\""
     unzip -d "${jbossDir}" -q "${cacheDir}/${wildflyZip}"
 
     status_done
