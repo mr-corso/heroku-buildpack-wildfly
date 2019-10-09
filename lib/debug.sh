@@ -47,29 +47,7 @@ debug_command() {
     if _debug_enabled; then
         local command="$*"
 
-        debug_detached "Executing following command: $*"
-    fi
-}
-
-# Prints an arbitrary JBoss command executed with the JBoss CLI
-# as a debug message detached from other output. The message is
-# only printed if the debug mode is enabled. The username, password
-# and connection URL in the command that creates a new datasource
-# will be concealed from the output.
-#
-# Params:
-#   $*:  command  the JBoss command
-#
-# Returns:
-#   stdout: the debug message with the JBoss command
-debug_jboss_command() {
-    if _debug_enabled; then
-        local command="$*"
-
-        echo
-        debug "Executing following JBoss command:"
-        echo "${command}" | _debug_hide_credentials | indent_num 9
-        echo
+        debug_detached "Executing following command: ${command}"
     fi
 }
 
@@ -166,25 +144,6 @@ debug_mmeasure() {
 #   1: The debug mode is disabled
 _debug_enabled() {
     [ "${BUILDPACK_DEBUG}" == "true" ]
-}
-
-# Hides the username, password and connection URL of the
-# datasource creation command by replacing the values to
-# the options with '*****'. This prevents those values
-# from being output to the console and the logs. The
-# connection URL is hidden because it may also contain
-# a username or password or a sensitive hostname. However,
-# it does not prevent other sensitive information from
-# being written to the console.
-#
-# Input:
-#   stdin:  the raw datasource command with sensitive
-#           information
-#
-# Returns:
-#   stdout: the datasource command with hidden credentials
-_debug_hide_credentials() {
-    sed -E 's/(--user-name|--password|--connection-url)=.*$/\1=*****/g'
 }
 
 # Indents an output message by a certain number of spaces.
