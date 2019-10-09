@@ -1,9 +1,11 @@
 # Heroku Wildfly Buildpack
 
+[![Travis Build Status](https://travis-ci.com/mortenterhart/heroku-buildpack-wildfly.svg?branch=master)][travis-status]
 [![Heroku Elements](https://img.shields.io/badge/Heroku_Elements-published-6762A6)][heroku-elements]
 [![Buildpack Registry](https://img.shields.io/badge/Buildpack_Registry-mterhart/wildfly-6762A6)][buildpack-registry]
 [![Latest GitHub Release](https://img.shields.io/github/v/tag/mortenterhart/heroku-buildpack-wildfly?color=blue&label=Latest%20Release&logo=github)][github-releases]
 
+[travis-status]: https://travis-ci.com/mortenterhart/heroku-buildpack-wildfly "View Travis Build Status"
 [heroku-elements]: https://elements.heroku.com/buildpacks/mortenterhart/heroku-buildpack-wildfly "Buildpack on Heroku Elements"
 [buildpack-registry]: https://devcenter.heroku.com/articles/buildpack-registry "Buildpack Registry"
 [github-releases]: https://github.com/mortenterhart/heroku-buildpack-wildfly/releases "GitHub Releases"
