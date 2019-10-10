@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 assertCapturedExitCode() {
-    local message=""
+    local message
 
     if [ $# -eq 2 ]; then
         message="$1"
@@ -20,7 +20,7 @@ assertCapturedExitCode() {
 }
 
 assertCapturedStderrContains() {
-    local message=""
+    local message
 
     if [ $# -eq 2 ]; then
         message="$1"
