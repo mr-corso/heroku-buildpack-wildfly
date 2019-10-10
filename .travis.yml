@@ -12,7 +12,7 @@ env:
 
 install: bash etc/ci-setup.sh
 
-before_script: bash etc/shellcheck.sh
+before_script: bash etc/shellcheck.sh bin/ etc/ lib/ test/
 
 script: ${TESTRUNNER}/bin/run -c .
 
