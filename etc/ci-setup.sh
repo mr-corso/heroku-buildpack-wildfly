@@ -28,15 +28,22 @@ retry() {
     done
 }
 
-# Download Shunit 2.1.7 from GitHub
+# Install shUnit2 2.1.7 from GitHub
 curl --retry 3 --location --silent "https://github.com/kward/shunit2/archive/v2.1.7.tar.gz" | tar xz -C /tmp/
 export SHUNIT_HOME="/tmp/shunit2-2.1.7"
 
-# Copy the Shunit2 script to where the Heroku Buildpack
+# Copy the shUnit2 script to where the Heroku Buildpack
 # Testrunner expects it to be
 mkdir -p "${SHUNIT_HOME}/src"
 cp "${SHUNIT_HOME}/shunit2" "${SHUNIT_HOME}/src"
 
+# Change the shUnit2 Shebang to be '#!/usr/bin/env bash'
+# because the tests that execute library functions
+# require 'bash' as interpreter due to bash-specific
+# builtins and features such as the 'local' command
+sed -i '1s,#! */bin/sh,#!/usr/bin/env bash,' "${SHUNIT_HOME}/src/shunit2"
+
+# Install the Heroku Buildpack Testrunner
 retry git clone "https://github.com/heroku/heroku-buildpack-testrunner.git" /tmp/testrunner
 
 git config --global user.email "${HEROKU_API_USER:-"buildpack@example.com"}"
@@ -57,6 +64,7 @@ machine git.heroku.com
   password ${HEROKU_API_KEY:-"password"}
 EOF
 
+# Install the Heroku CLI
 sudo apt-get -qq update
 sudo apt-get install software-properties-common -y
 curl --fail --retry 3 --retry-delay 1 --connect-timeout 3 --max-time 30 "https://cli-assets.heroku.com/install-ubuntu.sh" | sh

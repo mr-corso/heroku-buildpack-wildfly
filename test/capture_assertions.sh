@@ -37,7 +37,7 @@ assertCapturedStderrContains() {
     fi
 
     # Don't confuse this call with the 'assertContains' function provided
-    # by Shunit2. Version 2.1.7 of Shunit2 does not provide the function
+    # by shUnit2. Version 2.1.7 of shUnit2 does not provide the function
     # yet, but it is provided by the test_utils.sh of the Heroku buildpack
     # testrunner. This function expects the content to be the first and the
     # container to be the second argument:
