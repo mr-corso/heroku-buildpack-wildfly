@@ -1,14 +1,14 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
 assertCapturedExitCode() {
-    message=""
+    local message=""
 
     if [ $# -eq 2 ]; then
         message="$1"
         shift
     fi
 
-    actualExitCode="$1"
+    local actualExitCode="$1"
 
     if [ -z "${RETURN}" ]; then
         fail "No command was captured before, \$RETURN is null"
@@ -17,19 +17,17 @@ assertCapturedExitCode() {
 
     # $RETURN is the exit status of the last captured command
     assertEquals "${message}" "${RETURN}" "${actualExitCode}"
-
-    unset message actualExitCode
 }
 
 assertCapturedStderrContains() {
-    message=""
+    local message=""
 
     if [ $# -eq 2 ]; then
         message="$1"
         shift
     fi
 
-    content="$1"
+    local content="$1"
 
     if [ ! -f "${STD_ERR}" ]; then
         fail "ERROR: \$STD_ERR file does not exist"
@@ -47,6 +45,4 @@ assertCapturedStderrContains() {
     # See https://github.com/heroku/heroku-buildpack-testrunner/blob/master/lib/test_utils.sh
     # for more information.
     assertContains "${content}" "$(cat "${STD_ERR}")"
-
-    unset message content
 }

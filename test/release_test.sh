@@ -1,8 +1,8 @@
-#!/bin/sh
+#!/usr/bin/env bash
 #
 # shellcheck disable=SC1090
 
-. "${BUILDPACK_HOME}/test/test_helper.sh"
+source "${BUILDPACK_HOME}/test/test_helper.sh"
 
 testReleaseOutput() {
     release

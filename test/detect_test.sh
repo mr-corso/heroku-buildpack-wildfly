@@ -1,15 +1,15 @@
-#!/bin/sh
+#!/usr/bin/env bash
 #
 # shellcheck disable=SC1090
 
-. "${BUILDPACK_HOME}/test/test_helper.sh"
+source "${BUILDPACK_HOME}/test/test_helper.sh"
 
 import "capture_assertions"
 
 createDeployment() {
-    TARGET="${BUILD_DIR}/target"
-    mkdir -p "${TARGET}"
-    echo "This is a WAR file" > "${TARGET}/deployment.war"
+    local target="${BUILD_DIR}/target"
+    mkdir -p "${target}"
+    echo "This is a WAR file" > "${target}/deployment.war"
 }
 
 testDetectSuccess() {
