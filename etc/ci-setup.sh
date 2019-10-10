@@ -2,6 +2,13 @@
 
 [ "${CI}" != "true" ] && echo "Not running on CI!" && exit 1
 
+# Retry a specific setup step if it failed. Use the
+# --times <int> option to specify the number of retry
+# attempts. The default is to retry 3 times.
+#
+# Usage:
+#   $ retry git clone <git-url>
+#   $ retry --times 5 git clone <git-url>
 retry() {
     local times=3
     if [ "$1" == "--times" ]; then
