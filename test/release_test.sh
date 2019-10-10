@@ -2,7 +2,7 @@
 #
 # shellcheck disable=SC1090
 
-. "${BUILDPACK_TEST_RUNNER_HOME}/lib/test_utils.sh"
+. "${BUILDPACK_HOME}/test/test_helper.sh"
 
 testReleaseOutput() {
     release
