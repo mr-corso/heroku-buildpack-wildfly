@@ -1,9 +1,24 @@
 #!/usr/bin/env bash
 
-[ "$CI" != "true" ] && echo "Not running on CI!" && exit 1
+[ "${CI}" != "true" ] && echo "Not running on CI!" && exit 1
+
+retry() {
+    local times="${1:-3}"
+
+    local count=1
+    while [ "${count}" -le "${times}" ]; do
+        if "$@"; then
+            return
+        fi
+
+        local exitCode=$?
+        (( count++ ))
+        echo "Command failed with exit code ${exitCode}. Retrying ${count} of ${times} times..."
+    done
+}
 
 curl --retry 3 --location --silent "https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/shunit2/shunit2-2.1.6.tgz" | tar xz -C /tmp/
-git clone "https://github.com/heroku/heroku-buildpack-testrunner.git" /tmp/testrunner
+retry git clone "https://github.com/heroku/heroku-buildpack-testrunner.git" /tmp/testrunner
 
 git config --global user.email "${HEROKU_API_USER:-"buildpack@example.com"}"
 git config --global user.name 'BuildpackTester'
@@ -25,7 +40,7 @@ EOF
 
 sudo apt-get -qq update
 sudo apt-get install software-properties-common -y
-curl --fail --retry 3 --retry-delay 1 --connect-timeout 3 --max-time 30 https://cli-assets.heroku.com/install-ubuntu.sh | sh
+curl --fail --retry 3 --retry-delay 1 --connect-timeout 3 --max-time 30 "https://cli-assets.heroku.com/install-ubuntu.sh" | sh
 
 if [ -n "${HEROKU_API_KEY}" ]; then
     yes | heroku keys:add
