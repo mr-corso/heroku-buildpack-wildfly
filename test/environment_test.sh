@@ -20,6 +20,13 @@ assertEnvContains() {
     assertTrue "Environment doesn't contain '${variable}'" $?
 }
 
+assertEnvNotContains() {
+    local variable="$1"
+
+    env | grep -q -- "^${variable}"
+    assertFalse "Environment contains '${variable}'" $?
+}
+
 assertEnvDiffContains() {
     local variable="$1"
     local envBefore="$2"
@@ -59,4 +66,23 @@ testExportEnvDirWithConfigVar() {
     # Check that $envBefore and $envAfter differ
     # in the BUILDPACK_DEBUG variable
     assertEnvDiffContains "BUILDPACK_DEBUG" "${envBefore}" "${envAfter}"
+}
+
+testExportEnvDirWhitelist() {
+    addEnvVar "BUILDPACK_DEBUG" "true"
+
+    # Use explicit whitelist to export BUILDPACK_DEBUG
+    capture export_env_dir "${ENV_DIR}" "BUILDPACK_DEBUG"
+
+    assertCapturedSuccess
+    assertEnvContains "BUILDPACK_DEBUG"
+
+    unset BUILDPACK_DEBUG
+
+    # Use other whitelist so that BUILDPACK_DEBUG
+    # is not exported
+    capture export_env_dir "${ENV_DIR}" "OTHER_WHITELIST"
+
+    assertCapturedSuccess
+    assertEnvNotContains "BUILDPACK_DEBUG"
 }
