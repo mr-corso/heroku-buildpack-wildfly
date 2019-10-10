@@ -3,7 +3,11 @@
 [ "${CI}" != "true" ] && echo "Not running on CI!" && exit 1
 
 retry() {
-    local times="${1:-3}"
+    local times=3
+    if [ "$1" == "--times" ]; then
+        times="$2"
+        shift 2
+    fi
 
     local count=1
     while [ "${count}" -le "${times}" ]; do
