@@ -12,6 +12,8 @@ env:
 
 install: bash etc/ci-setup.sh
 
+before_script: bash etc/shellcheck.sh
+
 script: ${TESTRUNNER}/bin/run -c .
 
 after_script: test -n "${HEROKU_API_KEY}" && heroku keys:remove "$USER@$(hostname)"
