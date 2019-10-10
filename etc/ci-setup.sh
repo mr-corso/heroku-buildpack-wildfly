@@ -28,7 +28,15 @@ retry() {
     done
 }
 
-curl --retry 3 --location --silent "https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/shunit2/shunit2-2.1.6.tgz" | tar xz -C /tmp/
+# Download Shunit 2.1.7 from GitHub
+curl --retry 3 --location --silent "https://github.com/kward/shunit2/archive/v2.1.7.tar.gz" | tar xz -C /tmp/
+export SHUNIT_HOME="/tmp/shunit2-2.1.7"
+
+# Copy the Shunit2 script to where the Heroku Buildpack
+# Testrunner expects it to be
+mkdir -p "${SHUNIT_HOME}/src"
+cp "${SHUNIT_HOME}/shunit2" "${SHUNIT_HOME}/src"
+
 retry git clone "https://github.com/heroku/heroku-buildpack-testrunner.git" /tmp/testrunner
 
 git config --global user.email "${HEROKU_API_USER:-"buildpack@example.com"}"

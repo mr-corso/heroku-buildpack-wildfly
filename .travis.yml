@@ -8,7 +8,7 @@ branches:
 env:
   global:
     - TESTRUNNER="/tmp/testrunner"
-    - SHUNIT_HOME="/tmp/shunit2-2.1.6"
+    - SHUNIT_HOME="/tmp/shunit2-2.1.7"
 
 install: bash etc/ci-setup.sh
 
