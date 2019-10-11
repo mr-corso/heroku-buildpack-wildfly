@@ -210,13 +210,13 @@ get_app_system_property() {
     local property="${2?"No property specified"}"
 
     # Escape property for regex
-    local escaped_property="${property//./\\.}"
+    local escapedProperty="${property//./\\.}"
 
     if [ -f "${file}" ]; then
         # Remove comments and print property value
         sed -E '/^[[:blank:]]*\#/d' "${file}" | \
-        grep -E "^[[:blank:]]*${escaped_property}[[:blank:]]*=" | \
-        sed -E "s/[[:blank:]]*${escaped_property}[[:blank:]]*=[[:blank:]]*//"
+        grep -E "^[[:blank:]]*${escapedProperty}[[:blank:]]*=" | \
+        sed -E "s/[[:blank:]]*${escapedProperty}[[:blank:]]*=[[:blank:]]*//"
     fi
 }
 
