@@ -91,7 +91,7 @@ WILDFLY_BUILDPACK_URL="https://buildpack-registry.s3.amazonaws.com/buildpacks/mt
 
 |     **Name**      | **Default Value** | **Description** |
 | :---------------: | :---------------: | :-------------- |
-| `BUILDPACK_DEBUG` |      `false`      | When set to `true` the buildpack will produce more output including executed commands, values of variables and time measurements. When creating the datasource, the username, password and connection URL will be hidden with `*****` in the output. **Warning**: This option should only be used for testing your build and not for production. It is possible that sensitive data gets printed to the logs. |
+| `BUILDPACK_DEBUG` |      `false`      | When set to `true` the buildpack will produce more output including executed commands, values of variables and time measurements. **Warning**: This option should only be used for testing your build and not for production. It is possible that sensitive data gets printed to the logs. |
 
 ### Configuring the Wildfly version
 
