@@ -14,8 +14,8 @@ This is a [Heroku Buildpack](https://devcenter.heroku.com/articles/buildpacks)
 for running the [WildFly Application Server](http://wildfly.org) on Heroku.
 
 If you are experiencing troubles with this buildpack or the WildFly server,
-please see the [Caveats](#caveats) section below first and otherwise file an
-issue.
+please see the [Troubleshooting](#troubleshooting) section below first and
+otherwise file an issue.
 
 ## Standalone Usage
 
