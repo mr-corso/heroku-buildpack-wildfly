@@ -86,3 +86,19 @@ testExportEnvDirWhitelist() {
     assertCapturedSuccess
     assertEnvNotContains "BUILDPACK_DEBUG"
 }
+
+testExportEnvDirBlacklist() {
+    addEnvVar "BUILDPACK_DEBUG" "true"
+
+    capture export_env_dir "${ENV_DIR}" "." "BUILDPACK_DEBUG"
+
+    assertCapturedSuccess
+    assertEnvNotContains "BUILDPACK_DEBUG"
+
+    capture export_env_dir "${ENV_DIR}" "." "OTHER_BLACKLIST"
+
+    assertCapturedSuccess
+    assertEnvContains "BUILDPACK_DEBUG"
+
+    unset BUILDPACK_DEBUG
+}
