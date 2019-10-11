@@ -5,12 +5,7 @@
 source "${BUILDPACK_HOME}/test/module_loader.sh"
 
 import "assertions/capture_assertions"
-
-createDeployment() {
-    local target="${BUILD_DIR}/target"
-    mkdir -p "${target}"
-    echo "This is a WAR file" > "${target}/deployment.war"
-}
+import "lib/deployment_helper"
 
 testDetectSuccess() {
     createDeployment

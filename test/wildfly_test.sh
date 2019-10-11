@@ -8,6 +8,7 @@ import "wildfly"
 
 import "assertions/capture_assertions"
 import "assertions/env_assertions"
+import "lib/deployment_helper"
 
 ### --- SETUP HOOKS ---
 
@@ -28,16 +29,6 @@ setUpOnce() {
 }
 
 ### --- HELPER FUNCTIONS ---
-
-createTargetDirectory() {
-    TARGET_DIR="${BUILD_DIR}/target"
-    mkdir -p "${TARGET_DIR}"
-}
-
-createDeployment() {
-    createTargetDirectory
-    echo "This is a WAR file" > "${TARGET_DIR}/deployment.war"
-}
 
 createSystemProperty() {
     local property="$1"

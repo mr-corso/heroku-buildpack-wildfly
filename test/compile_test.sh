@@ -6,6 +6,8 @@ source "${BUILDPACK_HOME}/test/module_loader.sh"
 
 import "wildfly"
 
+import "lib/deployment_helper"
+
 ### --- SETUP HOOKS ---
 
 setUpOnce() {
@@ -25,16 +27,6 @@ setUpOnce() {
 }
 
 ### --- HELPER FUNCTIONS ---
-
-createTargetDirectory() {
-    TARGET_DIR="${BUILD_DIR}/target"
-    mkdir -p "${TARGET_DIR}"
-}
-
-createDeployment() {
-    createTargetDirectory
-    echo "This is a WAR file" > "${TARGET_DIR}/deployment.war"
-}
 
 useCachedWildfly() {
     cp "${WILDFLY_ZIP}" "${CACHE_DIR}"
