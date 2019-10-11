@@ -5,13 +5,29 @@
 source "${BUILDPACK_HOME}/test/test_helper.sh"
 
 import "wildfly"
-import "capture_assertions"
 
-oneTimeSetUp() {
-    echo "### oneTimeSetUp ###"
-    WILDFLY_ZIP="${SHUNIT_TMPDIR}/wildfly-${DEFAULT_WILDFLY_VERSION}.zip"
-    download_wildfly "${DEFAULT_WILDFLY_VERSION}" "${WILDFLY_ZIP}"
+import "assertions/capture_assertions"
+import "assertions/env_assertions"
+
+### --- Setup Hooks ---
+
+setUpOnce() {
+    echo "### setUpOnce ###"
+
+    TEST_CACHE="/tmp/test-cache"
+    mkdir -p "${TEST_CACHE}"
+
+    WILDFLY_ZIP="${TEST_CACHE}/wildfly-${DEFAULT_WILDFLY_VERSION}.zip"
+    if [ ! -f "${WILDFLY_ZIP}" ]; then
+        download_wildfly "${DEFAULT_WILDFLY_VERSION}" "${WILDFLY_ZIP}"
+    else
+        status "Using WildFly ${DEFAULT_WILDFLY_VERSION} from cache"
+    fi
+
+    echo "## END setUpOnce ###"
 }
+
+### --- Helper functions ---
 
 createTargetDirectory() {
     TARGET_DIR="${BUILD_DIR}/target"
@@ -23,14 +39,146 @@ createDeployment() {
     echo "This is a WAR file" > "${TARGET_DIR}/deployment.war"
 }
 
+createSystemProperty() {
+    local property="$1"
+    local value="$2"
+
+    echo "${property}=${value}" >> "${BUILD_DIR}/system.properties"
+}
+
+resetSystemProperties() {
+    rm "${BUILD_DIR}/system.properties"
+}
+
+getDefaultWildflyUrl() {
+    _get_wildfly_download_url "${DEFAULT_WILDFLY_VERSION}"
+}
+
+getInvalidWildflyUrl() {
+    _get_wildfly_download_url "undefined-version"
+}
+
 setupJbossHome() {
     export JBOSS_HOME="${BUILD_DIR}/.jboss/wildfly-${DEFAULT_WILDFLY_VERSION}"
     mkdir -p "${JBOSS_HOME}"
     mkdir -p "${JBOSS_HOME}/standalone/deployments"
 }
 
+### --- TESTS ---
+
+testInstallWildfly() {
+    local wildflyVersion="${DEFAULT_WILDFLY_VERSION}"
+
+    createSystemProperty "wildfly.version" "${wildflyVersion}"
+
+    # Prevent the function from downloading the WildFly server again
+    cp "${WILDFLY_ZIP}" "${CACHE_DIR}"
+
+    createDeployment
+
+    capture install_wildfly "${BUILD_DIR}" "${CACHE_DIR}"
+
+    assertCapturedSuccess
+    assertCaptured "Using WildFly ${wildflyVersion} from cache"
+    assertCaptured "Installing WildFly ${wildflyVersion}"
+    assertCaptured "Deploying WAR file(s)"
+    assertCaptured "Creating process configuration"
+    assertCaptured "Creating .profile.d script for WildFly environment variables"
+
+    assertEnvContains "JBOSS_HOME"
+    assertEnvContains "JBOSS_CLI"
+    assertEnvContains "WILDFLY_VERSION"
+}
+
+testDownloadWildfly() {
+    local wildflyVersion="17.0.0.Final"
+    local wildflyZip="${CACHE_DIR}/wildfly-${wildflyVersion}.zip"
+
+    capture download_wildfly "${wildflyVersion}" "${wildflyZip}"
+
+    assertCapturedSuccess
+    assertCaptured "Downloading WildFly ${wildflyVersion} to cache"
+    assertCaptured "Verifying SHA1 checksum"
+    assertTrue "Downloaded .zip file does not exist" "[ -f '${wildflyZip}' ]"
+}
+
+testDetectWildflyVersion() {
+    # Use a non-existing build directory
+    capture detect_wildfly_version "${OUTPUT_DIR}/other-build"
+
+    assertCapturedExitCode 1
+    assertCapturedStderrContains "Build directory exists" "Build directory does not exist: ${OUTPUT_DIR}/other-build"
+
+    # Execute without system.properties file
+    capture detect_wildfly_version "${BUILD_DIR}"
+
+    assertCapturedSuccess
+    assertCapturedEquals "Default version was not chosen" "${DEFAULT_WILDFLY_VERSION}"
+
+    # Create the Java version property not detected
+    # by this function
+    createSystemProperty "java.runtime.version" "11"
+
+    # The wildfly.version property is not defined
+    # and thus expect to choose the default version
+    capture detect_wildfly_version "${BUILD_DIR}"
+
+    assertCapturedSuccess
+    assertCapturedEquals "Default version was not chosen" "${DEFAULT_WILDFLY_VERSION}"
+
+    # Define the wildfly.version property finally
+    # and detect this version
+    createSystemProperty "wildfly.version" "17.0.0.Final"
+
+    capture detect_wildfly_version "${BUILD_DIR}"
+
+    assertCapturedSuccess
+    assertCapturedEquals "Custom version was not chosen" "17.0.0.Final"
+}
+
+testGetAppSystemProperty() {
+    createSystemProperty "wildfly.version" "17.0.0.Final"
+
+    local propertiesFile="${BUILD_DIR}/system.properties"
+
+    # Test an existing property
+    capture get_app_system_property "${propertiesFile}" "wildfly.version"
+
+    assertCapturedSuccess
+    assertCapturedEquals "17.0.0.Final"
+
+    # Test a non-existing property
+    capture get_app_system_property "${propertiesFile}" "java.runtime.version"
+
+    assertCapturedSuccess
+    assertCapturedEquals "Property was defined unexpectedly" ""
+
+    # Test a non-existing file
+    capture get_app_system_property "${BUILD_DIR}/other.properties" "wildfly.version"
+
+    assertCapturedSuccess
+    assertCapturedEquals "Unexpected output" ""
+
+    resetSystemProperties
+}
+
+testValidateWildflyUrl() {
+    local wildflyUrl="$(getDefaultWildflyUrl)"
+
+    capture validate_wildfly_url "${wildflyUrl}" "${DEFAULT_WILDFLY_VERSION}"
+
+    assertCapturedSuccess
+    assertCapturedEquals "stdout is not empty" ""
+
+    local invalidUrl="$(getInvalidWildflyUrl)"
+
+    capture validate_wildfly_url "${invalidUrl}" "undefined-version"
+
+    assertCapturedError 1 "Unsupported WildFly version: undefined-version"
+}
+
 testVerifySha1Checksum() {
-    local wildflyUrl="$(_get_wildfly_download_url "${DEFAULT_WILDFLY_VERSION}")"
+    local wildflyUrl="$(getDefaultWildflyUrl)"
     local checksum="$(curl --retry 3 --silent --location "${wildflyUrl}.sha1")"
 
     capture verify_sha1_checksum "${checksum}" "${WILDFLY_ZIP}"
@@ -49,14 +197,14 @@ testVerifySha1Checksum() {
 }
 
 testGetUrlStatus() {
-    local wildflyUrl="$(_get_wildfly_download_url "${DEFAULT_WILDFLY_VERSION}")"
+    local wildflyUrl="$(getDefaultWildflyUrl)"
 
     capture _get_url_status "${wildflyUrl}"
 
     assertCapturedSuccess
     assertCapturedEquals "WildFly download url is invalid" "200"
 
-    local invalidUrl="$(_get_wildfly_download_url "invalid-version")"
+    local invalidUrl="$(getInvalidWildflyUrl)"
 
     capture _get_url_status "${invalidUrl}"
 
@@ -85,6 +233,7 @@ testDeployWarFiles() {
     capture _deploy_war_files "${BUILD_DIR}"
 
     assertCapturedSuccess
+    assertTrue "WAR file was not deployed" "[ -f '${JBOSS_HOME}/standalone/deployments/deployment.war' ]"
 }
 
 testCreateProcessConfiguration() {

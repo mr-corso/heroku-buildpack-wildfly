@@ -9,6 +9,11 @@ env:
   global:
     - TESTRUNNER="/tmp/testrunner"
     - SHUNIT_HOME="/tmp/shunit2-2.1.7"
+    - TEST_CACHE="/tmp/test-cache"
+
+cache:
+  directories:
+    - ${TEST_CACHE}
 
 install: bash etc/ci-setup.sh
 
