@@ -237,23 +237,29 @@ testDeployWarFiles() {
 }
 
 testCreateProcessConfiguration() {
-    _create_process_configuration "${BUILD_DIR}"
-
     local procFile="${BUILD_DIR}/Procfile"
 
+    capture _create_process_configuration "${BUILD_DIR}"
+
+    assertCapturedSuccess
+    assertCaptured "done"
     assertTrue "Procfile does not exist" "[ -f '${procFile}' ]"
     assertFileContains "web: \${JBOSS_HOME}/bin/standalone.sh -b 0.0.0.0 -Djboss.http.port=\$PORT" "${procFile}"
 
-    _create_process_configuration "${BUILD_DIR}"
+    capture _create_process_configuration "${BUILD_DIR}"
 
+    assertCapturedSuccess
+    assertCaptured "Using existing process type 'web' in Procfile"
     assertTrue "Didn't use existing process type 'web'" "[ '$(wc -l "${procFile}" | awk '{ print $1; }')' -eq 1 ]"
 }
 
 testCreateWildflyProfileScript() {
-    _create_wildfly_profile_script "${BUILD_DIR}"
-
     local profileScript="${BUILD_DIR}/.profile.d/wildfly.sh"
 
+    capture _create_wildfly_profile_script "${BUILD_DIR}"
+
+    assertCapturedSuccess
+    assertCaptured "Creating .profile.d script for WildFly environment variables"
     assertTrue "WildFly .profile.d script does not exist" "[ -f '${profileScript}' ]"
     assertFileContains "export JBOSS_HOME=" "${profileScript}"
     assertFileContains "export JBOSS_CLI=" "${profileScript}"
@@ -262,10 +268,11 @@ testCreateWildflyProfileScript() {
 }
 
 testCreateWildflyExportScript() {
-    _create_wildfly_export_script "${BUILDPACK_HOME}"
-
     local exportScript="${BUILDPACK_HOME}/export"
 
+    capture _create_wildfly_export_script "${BUILDPACK_HOME}"
+
+    assertCapturedSuccess
     assertTrue "WildFly export script does not exist" "[ -f '${exportScript}' ]"
     assertFileContains "export JBOSS_HOME=" "${exportScript}"
     assertFileContains "export JBOSS_CLI=" "${exportScript}"
