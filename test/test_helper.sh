@@ -2,7 +2,7 @@
 #
 # shellcheck disable=SC1090
 
-source "${BUILDPACK_TEST_RUNNER_HOME}/lib/test_utils.sh"
+source "${BUILDPACK_HOME}/test/lib/test_utils.sh"
 
 import() {
     local module="$1"
