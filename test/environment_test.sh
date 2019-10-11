@@ -2,7 +2,7 @@
 #
 # shellcheck disable=SC1090,SC2155
 
-source "${BUILDPACK_HOME}/test/test_helper.sh"
+source "${BUILDPACK_HOME}/test/module_loader.sh"
 
 import "environment"
 import "assertions/env_assertions"

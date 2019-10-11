@@ -2,14 +2,14 @@
 #
 # shellcheck disable=SC1090,SC2155
 
-source "${BUILDPACK_HOME}/test/test_helper.sh"
+source "${BUILDPACK_HOME}/test/module_loader.sh"
 
 import "wildfly"
 
 import "assertions/capture_assertions"
 import "assertions/env_assertions"
 
-### --- Setup Hooks ---
+### --- SETUP HOOKS ---
 
 setUpOnce() {
     echo "### setUpOnce ###"
@@ -27,7 +27,7 @@ setUpOnce() {
     echo "## END setUpOnce ###"
 }
 
-### --- Helper functions ---
+### --- HELPER FUNCTIONS ---
 
 createTargetDirectory() {
     TARGET_DIR="${BUILD_DIR}/target"

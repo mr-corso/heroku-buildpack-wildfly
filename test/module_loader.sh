@@ -2,8 +2,6 @@
 #
 # shellcheck disable=SC1090
 
-source "${BUILDPACK_HOME}/test/lib/test_utils.sh"
-
 import() {
     local module="$1"
 
@@ -16,3 +14,7 @@ import() {
         exit 1
     fi
 }
+
+# Always import lib/test_utils for rudimentary capturing
+# and assert functions
+import "lib/test_utils"

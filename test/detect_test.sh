@@ -2,7 +2,7 @@
 #
 # shellcheck disable=SC1090
 
-source "${BUILDPACK_HOME}/test/test_helper.sh"
+source "${BUILDPACK_HOME}/test/module_loader.sh"
 
 import "assertions/capture_assertions"
 
