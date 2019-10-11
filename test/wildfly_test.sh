@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# shellcheck disable=SC1090
+# shellcheck disable=SC1090,SC2155
 
 source "${BUILDPACK_HOME}/test/test_helper.sh"
 
@@ -17,9 +17,25 @@ createDeployment() {
 }
 
 setupJbossHome() {
-    export JBOSS_HOME="${BUILD_DIR}/.jboss/wildfly-16.0.0.Final"
+    export JBOSS_HOME="${BUILD_DIR}/.jboss/wildfly-${DEFAULT_WILDFLY_VERSION}"
     mkdir -p "${JBOSS_HOME}"
     mkdir -p "${JBOSS_HOME}/standalone/deployments"
+}
+
+testGetUrlStatus() {
+    local wildflyUrl="$(_get_wildfly_download_url "${DEFAULT_WILDFLY_VERSION}")"
+
+    capture _get_url_status "${wildflyUrl}"
+
+    assertCapturedSuccess
+    assertCapturedEquals "WildFly download url is invalid" "200"
+
+    local invalidUrl="$(_get_wildfly_download_url "invalid-version")"
+
+    capture _get_url_status "${invalidUrl}"
+
+    assertCapturedSuccess
+    assertCapturedEquals "WildFly url is valid" "404"
 }
 
 testDeployWarFiles() {
