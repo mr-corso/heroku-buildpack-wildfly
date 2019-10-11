@@ -5,6 +5,13 @@
 source "${BUILDPACK_HOME}/test/test_helper.sh"
 
 import "wildfly"
+import "capture_assertions"
+
+oneTimeSetUp() {
+    echo "### oneTimeSetUp ###"
+    WILDFLY_ZIP="${SHUNIT_TMPDIR}/wildfly-${DEFAULT_WILDFLY_VERSION}.zip"
+    download_wildfly "${DEFAULT_WILDFLY_VERSION}" "${WILDFLY_ZIP}"
+}
 
 createTargetDirectory() {
     TARGET_DIR="${BUILD_DIR}/target"
@@ -20,6 +27,25 @@ setupJbossHome() {
     export JBOSS_HOME="${BUILD_DIR}/.jboss/wildfly-${DEFAULT_WILDFLY_VERSION}"
     mkdir -p "${JBOSS_HOME}"
     mkdir -p "${JBOSS_HOME}/standalone/deployments"
+}
+
+testVerifySha1Checksum() {
+    local wildflyUrl="$(_get_wildfly_download_url "${DEFAULT_WILDFLY_VERSION}")"
+    local checksum="$(curl --retry 3 --silent --location "${wildflyUrl}.sha1")"
+
+    capture verify_sha1_checksum "${checksum}" "${WILDFLY_ZIP}"
+
+    assertCapturedSuccess
+
+    # Take an invalid SHA-1 checksum to test a failed
+    # checksum verification
+    checksum="caa52e60808b8fff674d4c61a421d0c78dea80df"
+
+    capture verify_sha1_checksum "${checksum}" "${WILDFLY_ZIP}"
+
+    assertCapturedExitCode 1
+    assertCaptured "SHA1 checksum verification failed for ${WILDFLY_ZIP}"
+    assertCapturedStderrContains "sha1sum: WARNING: 1 computed checksum did NOT match"
 }
 
 testGetUrlStatus() {
