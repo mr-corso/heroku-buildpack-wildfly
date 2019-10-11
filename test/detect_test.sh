@@ -4,7 +4,7 @@
 
 source "${BUILDPACK_HOME}/test/test_helper.sh"
 
-import "capture_assertions"
+import "assertions/capture_assertions"
 
 createDeployment() {
     local target="${BUILD_DIR}/target"

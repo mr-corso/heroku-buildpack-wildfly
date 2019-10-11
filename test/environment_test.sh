@@ -5,36 +5,13 @@
 source "${BUILDPACK_HOME}/test/test_helper.sh"
 
 import "environment"
+import "assertions/env_assertions"
 
 addEnvVar() {
     local varname="$1"
     local value="$2"
 
     echo "${value}" > "${ENV_DIR}/${varname}"
-}
-
-assertEnvContains() {
-    local variable="$1"
-
-    env | grep -q -- "^${variable}"
-    assertTrue "Environment doesn't contain '${variable}'" $?
-}
-
-assertEnvNotContains() {
-    local variable="$1"
-
-    env | grep -q -- "^${variable}"
-    assertFalse "Environment contains '${variable}'" $?
-}
-
-assertEnvDiffContains() {
-    local variable="$1"
-    local envBefore="$2"
-    local envAfter="$3"
-
-    diff <(echo "${envBefore}" | sort) <(echo "${envAfter}" | sort) | \
-        grep -q -- "${variable}"
-    assertTrue "Environment doesn't differ in '${variable}'" $?
 }
 
 testExportEmptyEnvDir() {
@@ -95,7 +72,7 @@ testExportEnvDirBlacklist() {
     assertCapturedSuccess
     assertEnvNotContains "BUILDPACK_DEBUG"
 
-    capture export_env_dir "${ENV_DIR}" "." "OTHER_BLACKLIST"
+    capture export_env_dir "${ENV_DIR}" "" "OTHER_BLACKLIST"
 
     assertCapturedSuccess
     assertEnvContains "BUILDPACK_DEBUG"
