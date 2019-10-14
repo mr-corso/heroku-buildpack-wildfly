@@ -44,5 +44,5 @@ assertCapturedStderrContains() {
     #
     # See https://github.com/heroku/heroku-buildpack-testrunner/blob/master/lib/test_utils.sh
     # for more information.
-    assertContains "${content}" "$(cat "${STD_ERR}")"
+    assertContains "${message}" "${content}" "$(cat "${STD_ERR}")"
 }
