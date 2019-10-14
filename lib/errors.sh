@@ -59,7 +59,7 @@ ERROR
 #   always 1
 error_no_war_files_found() {
     write_error <<ERROR
-No WAR files found in 'target' directory.
+No WAR files found in 'target' directory
 
 Please ensure your Maven build configuration in the pom.xml is creating
 the necessary WAR file(s) for your application under the target/ directory.
