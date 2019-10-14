@@ -1,4 +1,4 @@
-# Heroku Wildfly Buildpack
+# Heroku WildFly Buildpack
 
 [![Travis Build Status](https://travis-ci.com/mortenterhart/heroku-buildpack-wildfly.svg?branch=master)][travis-status]
 [![Heroku Elements](https://img.shields.io/badge/Heroku_Elements-published-6762A6)][heroku-elements]
