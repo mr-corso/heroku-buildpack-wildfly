@@ -9,6 +9,7 @@ env:
   global:
     - TESTRUNNER="/tmp/testrunner"
     - SHUNIT_HOME="/tmp/shunit2-2.1.7"
+    - SHUNIT_COLOR="always"
     - TEST_CACHE="/tmp/test-cache"
 
 cache:
