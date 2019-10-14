@@ -34,8 +34,8 @@ source "${JVM_COMMON_DIR}/bin/java"
 source "${JVM_COMMON_DIR}/bin/util"
 
 # see lib/ directory for scripts
-source "${BP_DIR}/lib/wildfly.sh"
 source "${BP_DIR}/lib/environment.sh"
+source "${BP_DIR}/lib/wildfly.sh"
 
 # Export config vars from ENV_DIR
 export_env_dir "${ENV_DIR}"
