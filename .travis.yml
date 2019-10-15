@@ -20,6 +20,10 @@ cache:
     - ${TEST_CACHE}
     - /tmp/jvm-common
 
+before_install:
+  - gem update --system
+  - gem install bundler --version=2.0.2
+
 install: bash etc/ci-setup.sh
 
 before_script:
