@@ -11,6 +11,9 @@ env:
     - SHUNIT_HOME="/tmp/shunit2-2.1.7"
     - SHUNIT_COLOR="always"
     - TEST_CACHE="/tmp/test-cache"
+    - HATCHET_DEPLOY_STRATEGY="git"
+    - HATCHET_RETRIES="3"
+    - HATCHET_APP_PREFIX="hatchet-buildpack-wildfly-${TRAVIS_JOB_ID}-"
 
 cache:
   directories:
@@ -19,8 +22,13 @@ cache:
 
 install: bash etc/ci-setup.sh
 
-before_script: bash etc/shellcheck.sh bin/ etc/ lib/ test/
+before_script:
+  - bash etc/shellcheck.sh bin/ etc/ lib/ test/
+  - bundle exec hatchet ci:setup
 
-script: ${TESTRUNNER}/bin/run -c .
+script:
+  - ${TESTRUNNER}/bin/run -c .
+  - bundle exec parallel_rspec -n 5 spec/
+  - bundle exec hatchet destroy --all
 
 after_script: test -n "${HEROKU_API_KEY}" && heroku keys:remove "$USER@$(hostname)"
