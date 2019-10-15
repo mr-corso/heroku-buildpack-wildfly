@@ -1,6 +1,5 @@
-require_relative "lib/app_helper"
-
 describe "WildFly" do
+
   context "on collaborative-markdown-editor" do
     let(:app) do
       Hatchet::Runner.new("collaborative-markdown-editor",
