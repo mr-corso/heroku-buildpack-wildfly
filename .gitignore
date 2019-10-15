@@ -4,6 +4,9 @@
 # Export script
 /export
 
+# Hatchet repos
+/spec/fixtures/repos
+
 # Package Files #
 *.jar
 *.war
