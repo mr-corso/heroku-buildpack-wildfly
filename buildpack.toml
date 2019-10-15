@@ -4,6 +4,7 @@ name = "Heroku WildFly Buildpack"
     [publish.Ignore]
     files = [
         ".gitignore",
+        ".rspec",
         ".travis.yml",
         "etc/",
         "spec/",
