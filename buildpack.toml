@@ -6,5 +6,10 @@ name = "Heroku WildFly Buildpack"
         ".gitignore",
         ".travis.yml",
         "etc/",
-        "test/"
+        "spec/",
+        "test/",
+        "Gemfile",
+        "Gemfile.lock",
+        "hatchet.json",
+        "hatchet.lock"
     ]
