@@ -1,4 +1,4 @@
-describe "WildFly" do
+RSpec.describe "WildFly" do
 
   context "on collaborative-markdown-editor" do
     let(:app) do
