@@ -80,7 +80,7 @@ gem update --system | suppress_changelog
 gem install bundler --version=2.0.2
 
 bundle install
-bundle exec hatchet ci:setup
+bundle exec hatchet install
 
 # Disable printing and exiting on error
 set +ex
