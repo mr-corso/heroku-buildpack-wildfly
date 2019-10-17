@@ -68,7 +68,7 @@ export HATCHET_DEPLOY_STRATEGY="git"
 export HATCHET_BUILDPACK_BASE="https://github.com/${BUILDPACK}.git"
 
 # Execute the specs in parallel
-bundle exec parallel_rspec -n "${MAX_CONCURRENT_BUILDS:-1}" "$@"
+bundle exec parallel_rspec -n "${HATCHET_MAX_CONCURRENT_PROCESSES:-1}" "$@"
 RETURN=$?
 
 # Destroy any remaining apps
