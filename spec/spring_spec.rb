@@ -16,7 +16,7 @@ RSpec.describe "Spring Boot Application" do
     let(:wildfly_version) { "16.0.0.Final" }
     let(:jdk_version) { "1.8" }
 
-    it "should deploy successfully and output Hello World" do
+    it "deploys successfully and outputs Hello World" do
       app.deploy do |app|
         expect(app).to be_deployed
         expect(successful_body(app)).to eq("Hello World!")
