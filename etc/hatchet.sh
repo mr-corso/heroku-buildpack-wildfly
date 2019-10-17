@@ -52,7 +52,7 @@ fi
 # Print the following commands
 set -x
 
-gem update --system
+gem update --system --quiet
 gem install bundler --version=2.0.2
 
 bundle install
