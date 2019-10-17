@@ -1,6 +1,7 @@
 RSpec.describe "Spring Boot Application" do
 
   before(:each) do
+    clear_system_properties
     set_wildfly_version(app.directory, wildfly_version)
     set_java_version(app.directory, jdk_version)
     init_app(app)

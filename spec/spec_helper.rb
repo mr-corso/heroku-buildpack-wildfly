@@ -66,10 +66,6 @@ def init_app(app, stack = DEFAULT_STACK)
   app.api_rate_limit.call.app.update(app.name, {
     "build_stack": ENV['HEROKU_TEST_STACK'] || stack
   })
-
-  Dir.chdir(app.directory) do
-    File.delete('system.properties') if File.file?('system.properties')
-  end
 end
 
 def successful_body(app, options = {})
@@ -89,6 +85,12 @@ def set_wildfly_version(app_dir, version)
     end
     `git add system.properties`
     `git commit -m "Setting WildFly version #{version}"`
+  end
+end
+
+def clear_system_properties(app_dir)
+  Dir.chdir(app_dir) do
+    File.delete('system.properties') if File.file?('system.properties')
   end
 end
 
