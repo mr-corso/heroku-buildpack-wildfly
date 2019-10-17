@@ -63,7 +63,56 @@ end
 
 def init_app(app, stack = DEFAULT_STACK)
   app.setup!
-  app.platform_api.app.update(app.name, {
+  app.api_rate_limit.call.app.update(app.name, {
     "build_stack": ENV['HEROKU_TEST_STACK'] || stack
   })
+
+  Dir.chdir(app.directory) do
+    File.delete('system.properties') if File.file?('system.properties')
+  end
+end
+
+def successful_body(app, options = {})
+  wait_for_dyno_startup(app)
+  retry_limit = options[:retry_limit] || 50
+  path = options[:path] ? "/#{options[:path]}" : ""
+  Excon.get("https://#{app.name}.herokuapp.com#{path}",
+            :idempotent => true,
+            :expects => 200,
+            :retry_limit => retry_limit).body
+end
+
+def set_wildfly_version(app_dir, version)
+  Dir.chdir(app_dir) do
+    File.open('system.properties', 'a') do |file|
+      file.puts "wildfly.version=#{version}"
+    end
+    `git add system.properties`
+    `git commit -m "Setting WildFly version #{version}"`
+  end
+end
+
+def set_java_version(app_dir, version)
+  Dir.chdir(app_dir) do
+    File.open('system.properties', 'a') do |file|
+      file.puts "java.runtime.version=#{version}"
+    end
+    `git add system.properties`
+    `git commit -m "Setting Java version #{version}"`
+  end
+end
+
+def dyno_status(app, ps_name = "web")
+  app
+    .api_rate_limit.call
+    .dyno
+    .list(app.name)
+    .detect { |dyno| dyno["type"] == ps_name }
+end
+
+def wait_for_dyno_startup(app, ps_name = "web", sleep_val = 1)
+  while ["starting", "restarting"].include?(dyno_status(app, ps_name)["state"])
+    sleep sleep_val
+  end
+  dyno_status(app, ps_name)
 end

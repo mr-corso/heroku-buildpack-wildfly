@@ -2,7 +2,10 @@
   "hatchet": {
     "directory": "spec/fixtures"
   },
-  "java": [
+  "java_ee_jdk11": [
     "mortenterhart/collaborative-markdown-editor"
+  ],
+  "spring_boot_jdk1.8": [
+    "pvorb/wildfly-spring-boot-sample"
   ]
 }

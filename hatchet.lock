@@ -1,3 +1,5 @@
 ---
-- - spec/fixtures/repos/java/collaborative-markdown-editor
+- - spec/fixtures/repos/java_ee_jdk11/collaborative-markdown-editor
   - f7092a868f662d0820afd5dda1b27338d48f3f2d
+- - spec/fixtures/repos/spring_boot_jdk1.8/wildfly-spring-boot-sample
+  - 1278d22db2bbbcfabd33eab8ddf00a3f91367c27
