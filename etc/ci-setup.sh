@@ -44,7 +44,7 @@ cp "${SHUNIT_HOME}/shunit2" "${SHUNIT_HOME}/src"
 sed -i '1s,#! */bin/sh,#!/usr/bin/env bash,' "${SHUNIT_HOME}/src/shunit2"
 
 # Install the Heroku Buildpack Testrunner
-retry git clone "https://github.com/heroku/heroku-buildpack-testrunner.git" /tmp/testrunner
+retry git clone "https://github.com/heroku/heroku-buildpack-testrunner.git" "${TESTRUNNER_HOME:-"/tmp/testrunner"}"
 
 git config --global user.email "${HEROKU_API_USER:-"buildpack@example.com"}"
 git config --global user.name 'BuildpackTester'
