@@ -52,7 +52,31 @@ fi
 # Print the following commands
 set -x
 
-gem update --system --quiet
+# Suppresses the extensive changelog that is output when
+# updating RubyGems. The process output may be piped to
+# this function.
+suppress_changelog() {
+    if [ -t 0 ]; then
+        echo "ERROR: Input on stdin expected"
+        return 1
+    fi
+
+    awk 'BEGIN {
+        blank_line = 0
+    }
+    {
+        # Stop printing input when the first
+        # blank line is found
+        if ($0 ~ /^ *$/) {
+            blank_line = 1
+        }
+        if (!blank_line) {
+            print $0
+        }
+    }'
+}
+
+gem update --system | suppress_changelog
 gem install bundler --version=2.0.2
 
 bundle install
