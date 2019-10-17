@@ -63,9 +63,7 @@ end
 
 def init_app(app, stack = DEFAULT_STACK)
   app.setup!
-  app.api_rate_limit.call.app.update(app.name, {
-    "build_stack": ENV['HEROKU_TEST_STACK'] || stack
-  })
+  app.update_stack(ENV['HEROKU_TEST_STACK'] || stack)
 end
 
 def successful_body(app, options = {})
