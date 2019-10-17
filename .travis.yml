@@ -19,6 +19,8 @@ cache:
   directories:
     - ${TEST_CACHE}
     - /tmp/jvm-common
+    - ${SHUNIT_HOME}
+    - ${TESTRUNNER_HOME}
 
 install:
   - bash etc/ci-setup.sh

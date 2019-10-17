@@ -28,23 +28,32 @@ retry() {
     done
 }
 
-# Install shUnit2 2.1.7 from GitHub
-curl --retry 3 --location --silent "https://github.com/kward/shunit2/archive/v2.1.7.tar.gz" | tar xz -C /tmp/
-export SHUNIT_HOME="/tmp/shunit2-2.1.7"
+# Install shUnit2 2.1.7 if not cached yet
+if [ -z "${SHUNIT_HOME:-}" ] || \
+   [ ! -d "${SHUNIT_HOME}" ] || \
+   [ ! -f "${SHUNIT_HOME}/src/shunit2" ]; then
+    curl --retry 3 --location --silent "https://github.com/kward/shunit2/archive/v2.1.7.tar.gz" | tar xz -C /tmp/
+    export SHUNIT_HOME="/tmp/shunit2-2.1.7"
 
-# Copy the shUnit2 script to where the Heroku Buildpack
-# Testrunner expects it to be
-mkdir -p "${SHUNIT_HOME}/src"
-cp "${SHUNIT_HOME}/shunit2" "${SHUNIT_HOME}/src"
+    # Copy the shUnit2 script to where the Heroku Buildpack
+    # Testrunner expects it to be
+    mkdir -p "${SHUNIT_HOME}/src"
+    cp "${SHUNIT_HOME}/shunit2" "${SHUNIT_HOME}/src"
 
-# Change the shUnit2 Shebang to be '#!/usr/bin/env bash'
-# because the tests that execute library functions
-# require 'bash' as interpreter due to bash-specific
-# builtins and features such as the 'local' command
-sed -i '1s,#! */bin/sh,#!/usr/bin/env bash,' "${SHUNIT_HOME}/src/shunit2"
+    # Change the shUnit2 Shebang to be '#!/usr/bin/env bash'
+    # because the tests that execute library functions
+    # require 'bash' as interpreter due to bash-specific
+    # builtins and features such as the 'local' command
+    sed -i '1s,#! */bin/sh,#!/usr/bin/env bash,' "${SHUNIT_HOME}/src/shunit2"
+fi
 
-# Install the Heroku Buildpack Testrunner
-retry git clone "https://github.com/heroku/heroku-buildpack-testrunner.git" "${TESTRUNNER_HOME:-"/tmp/testrunner"}"
+# Install the Heroku Buildpack Testrunner if not cached yet
+if [ -z "${TESTRUNNER_HOME:-}" ] || \
+   [ ! -d "${TESTRUNNER_HOME}" ] || \
+   [ ! -f "${TESTRUNNER_HOME}/bin/run" ]; then
+    export TESTRUNNER_HOME="${TESTRUNNER_HOME:-"/tmp/testrunner"}"
+    retry git clone "https://github.com/heroku/heroku-buildpack-testrunner.git" "${TESTRUNNER_HOME}"
+fi
 
 git config --global user.email "${HEROKU_API_USER:-"buildpack@example.com"}"
 git config --global user.name 'BuildpackTester'
