@@ -82,6 +82,8 @@ gem install bundler --version=2.0.2
 bundle install
 bundle exec hatchet install
 
+heroku update
+
 # Disable printing and exiting on error
 set +ex
 
