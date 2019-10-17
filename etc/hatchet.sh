@@ -49,9 +49,6 @@ else
     export HATCHET_BUILDPACK_BRANCH="$(git name-rev HEAD 2>/dev/null | sed 's#HEAD\ \(.*\)#\1#' | sed 's#tags\/##')"
 fi
 
-# Print the following commands
-set -x
-
 # Suppresses the extensive changelog that is output when
 # updating RubyGems. The process output may be piped to
 # this function.
@@ -75,6 +72,9 @@ suppress_changelog() {
         }
     }'
 }
+
+# Print the following commands
+set -x
 
 gem update --system | suppress_changelog
 gem install bundler --version=2.0.2
