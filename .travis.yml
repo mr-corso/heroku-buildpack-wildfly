@@ -15,6 +15,7 @@ env:
     - HATCHET_DEPLOY_STRATEGY="git"
     - HATCHET_RETRIES="3"
     - HATCHET_APP_PREFIX="htcht-${TRAVIS_JOB_ID}-"
+    - HEROKU_APP_LIMIT="1"
     - secure: "CGFyOCd+a706jfEBZyZJdQVqkWo1mvmjaSNPS+NkcyQhQmU0O5nyz4BEnPpR8wLoQm3KSgfGnVNly1S3lpTDP8NrMQ1AESNvAzSpkQqzkn26YVcKj6Deoy69do9KAC1Gd5BotFer4JPic3yVfnmefnJkWMRVzVhUp2+rDN1vsYuTHL5sAO40x0t3CLfQdX5z2/zIjYkHpr3XDJH5sXd5UwfYjPH7GFLfKF5y2riX65SthgXZZb58en02FYmmH6+6Do75ZZfP8R9t869EBc9hUL5TjoqpwOdU2H25yCiQWmXevtTRrOmFQdOZOOYDaV73H7YcHA/kkw+0svzlpLpgsHde3dXNeaGDxVCUBOGMr2H8zNACrLFdZYi8sipzHzgtqOAMJKm6sNDAIJKOfwNLl/nTvEBpufeH0HjPOQRI7Y0xAWIfsjJgeCU/7puzbV+QX++7OIyLml0LBzB9sxxFML3o2mXx1vlkFQP+4C/LGMROXL6p0mI/R4gfcCOeZCD74GPlNmed3kcCh9zt9mcCMN+Ce6zNRkI0Sv7d/orsIgM9ur9CgcwUSHvZ4x4OuAxBzzqpd1xSsEdLRkTe2tZLGQBRGjIGTTiNU9+XiiUEGoh1yrFCiu0H6ugFDCaV75z8Kzh3Ubz0te6huxJmO/J0afKiEcr6KXcLa5OTolJJs+Q="
     - secure: "l0Io32A28I/zAuoXiCZP2FNdijjD3mscNbK5mOYIm8IBVVQGcw19M+ILdCUA/+uKbf95liffM6x1w1DjANLi8b1TGR8tErFJdZP7CRd9eS41ASLwxcvQaB9FzDx5telLnTWbwSrbYMc9S63cPxYjuTNxBm53MztW9Cubk5gwiBtU70xn6ijdjWIvTcOOHhQr6IjlCNf9SR9qYTOfCTXcg+RJrMvFjD23e7kJIf2S/omXx8n8+bzX/STxb/TwU1ZM4HEwDElxq0UUv8beCCPW0tUO0jJXTtSK9bGhDirZGZS7oPR5adbV3De9cduWbg+/VmIdncd7IH+vyFTvbgpMI9gK2xXjsPnISND0I3r9ibmXdUgTnT4uAA1mNjW/nc4I6w7AygSzLYR/3D5Udt1s7nY2iLZBjCPmz2+GzBLA7uHv/DeUdioLcZqGX/qVbcaJuEddWDz/T3Apnt10Vb4WlRI4oXBUIUpvz7o395SLkeU4OomMUMpB0zgYE7XAxlRnwTNahVT50l6dXQtYoaHxyKv9pjXN5AvE5+wmc+D+n3ecxwvMMFol3bSjtU+MQPy6T5pRPLV0fgUmNuxggyZ2ZwJF8Yf7qyUwsIXH6ukkohdrBKmPBriKoJ0r+LzrNBKUu5zXyq4DwXAfL8vxlAHKXL2XgpGgJ/83xpKW5pzGTt4="
 
@@ -37,7 +38,7 @@ before_script:
 
 script:
   - ${TESTRUNNER}/bin/run -c .
-  - bundle exec parallel_rspec -n 5 spec/
+  - bundle exec parallel_rspec -n "${HEROKU_APP_LIMIT}" spec/
   - bundle exec hatchet destroy --all
 
 after_script: test -n "${HEROKU_API_KEY}" && heroku keys:remove "$USER@$(hostname)"
