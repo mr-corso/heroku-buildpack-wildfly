@@ -65,7 +65,7 @@ RSpec.describe "Java 11 Application" do
             expect(env).to include("WILDFLY_VERSION")
 
             sleep 2 # make sure the run dynos don't overlap
-            expect(app.run('ls "\\$JBOSS_HOME/standalone/deployments"')).to match(%r{.*.war})
+            expect(app.run('ls "\\$JBOSS_HOME/standalone/deployments"')).to match(/.*.war/)
           end
         end
       end

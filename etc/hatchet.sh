@@ -87,14 +87,44 @@ heroku update
 # Disable printing and exiting on error
 set +ex
 
+# Determines whether the account associated with the
+# $HEROKU_API_KEY is verified or not. This is important
+# for compliance with the app and build limits. Unverified
+# accounts can only hold 5 apps in total and can only run
+# one build at a time.
+is_heroku_account_verified() {
+    curl --retry 3 --location --netrc --silent "https://api.heroku.com/account" \
+        -H "Accept: application/vnd.heroku+json; version=3" | \
+        ruby -e '
+require "json"
+
+account = JSON.parse(STDIN.read)
+puts account["verified"]' | grep -q "true"
+}
+
+# Use concurrent builds with Hatchet only if the
+# associated Heroku account is verified
+if is_heroku_account_verified; then
+    export HATCHET_APP_LIMIT="100"
+    export HEROKU_MAX_CONCURRENT_BUILDS="5"
+else
+    export HATCHET_APP_LIMIT="5"
+    export HEROKU_MAX_CONCURRENT_BUILDS="1"
+fi
+
 export HATCHET_RETRIES="3"
-export HATCHET_APP_LIMIT="5"
 export HATCHET_APP_PREFIX="htcht-${TRAVIS_JOB_ID}-"
 export HATCHET_DEPLOY_STRATEGY="git"
 export HATCHET_BUILDPACK_BASE="https://github.com/${BUILDPACK}.git"
 
+echo "---"
+echo "Executing INTEGRATION TESTS"
+echo "  Using app limit ${HATCHET_APP_LIMIT} with ${HEROKU_MAX_CONCURRENT_BUILDS} concurrent processes"
+echo "  Hatchet App Prefix: ${HATCHET_APP_PREFIX}"
+echo "---"
+
 # Execute the specs in parallel
-bundle exec parallel_rspec -n "${HATCHET_MAX_CONCURRENT_PROCESSES:-1}" "$@"
+bundle exec parallel_rspec -n "${HEROKU_MAX_CONCURRENT_BUILDS}" "$@"
 RETURN=$?
 
 # Destroy any remaining apps
