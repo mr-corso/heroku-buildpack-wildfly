@@ -119,7 +119,7 @@ export HATCHET_BUILDPACK_BASE="https://github.com/${BUILDPACK}.git"
 
 echo "---"
 echo "Executing INTEGRATION TESTS"
-echo "  Using app limit ${HATCHET_APP_LIMIT} with ${HEROKU_MAX_CONCURRENT_BUILDS} concurrent processes"
+echo "  Using app limit ${HATCHET_APP_LIMIT} with ${HEROKU_MAX_CONCURRENT_BUILDS} concurrent process(es)"
 echo "  Hatchet App Prefix: ${HATCHET_APP_PREFIX}"
 echo "---"
 
