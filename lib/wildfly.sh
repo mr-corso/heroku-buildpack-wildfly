@@ -43,6 +43,7 @@ _load_dependent_scripts() {
     source "${scriptDir}/load_buildpacks.sh"
 
     # Load scripts
+    source "${scriptDir}/environment.sh"   # Override JVM common functions
     source "${scriptDir}/errors.sh"
     source "${scriptDir}/warnings.sh"
     source "${scriptDir}/debug.sh"
