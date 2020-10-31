@@ -309,14 +309,17 @@ _get_url_status() {
 #   1: The deployment failed due to an error
 _deploy_war_files() {
     local buildDir="$1"
+    
+    # customize app build dir
+    local appBuildDir = "${buildDir}/server/zanata-war"
 
-    if [ ! -d "${buildDir}/target" ]; then
+    if [ ! -d "${appBuildDir}/target" ]; then
         error_return "Could not deploy WAR files: Target directory does not exist"
         return 1
     fi
 
-    local warFiles=("${buildDir}"/target/*.war)
-    if [ "${warFiles[*]}" == "${buildDir}/target/*.war" ]; then
+    local warFiles=("${appBuildDir}"/target/*.war)
+    if [ "${warFiles[*]}" == "${appBuildDir}/target/*.war" ]; then
         error_no_war_files_found
         return 1
     fi
