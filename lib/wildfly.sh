@@ -340,6 +340,10 @@ _deploy_war_files() {
 
         mcount "deploy.${warBasename%.war}.success"
     done
+    
+    cp "${buildDir}/wildfly/standalone.xml" "${JBOSS_HOME}/standalone/configuration"
+    cp "${buildDir}/wildfly/mysql-connector-java.jar" "${JBOSS_HOME}/standalone/deployments"
+    
     echo "done" | indent
 }
 
