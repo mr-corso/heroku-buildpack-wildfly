@@ -123,8 +123,10 @@ install_wildfly() {
     _create_wildfly_profile_script "${buildDir}"
     _create_wildfly_export_script "${BUILDPACK_DIR}"
     
-    echo "Delete build dir"
-    rm -r "${buildDir}"
+    echo "Delete project sources"
+    
+    cd "${buildDir}"
+    rm -rf `ls |grep -v "jboss"`
 }
 
 # Downloads a WildFly instance of a specified version to a specified location
