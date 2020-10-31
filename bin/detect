@@ -29,9 +29,12 @@ error() {
     exit 1
 }
 
+# use custom war location
+APP_DIR=("${BUILD_DIR}"/server/zanata-war)
+
 # Check if any WAR files exist in the target directory
-warFiles=("${BUILD_DIR}"/target/*.war)
-if [ "${warFiles[*]}" == "${BUILD_DIR}/target/*.war" ]; then
+warFiles=("${APP_DIR}"/target/*.war)
+if [ "${warFiles[*]}" == "${APP_DIR}/target/*.war" ]; then
     error <<EOF
 No WAR files found in 'target' directory for deployment
 
