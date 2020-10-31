@@ -122,6 +122,9 @@ install_wildfly() {
     _create_process_configuration "${buildDir}"
     _create_wildfly_profile_script "${buildDir}"
     _create_wildfly_export_script "${BUILDPACK_DIR}"
+    
+    echo "Delete build dir"
+    rm -r "${buildDir}"
 }
 
 # Downloads a WildFly instance of a specified version to a specified location
