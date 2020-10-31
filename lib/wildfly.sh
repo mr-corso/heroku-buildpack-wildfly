@@ -311,7 +311,7 @@ _deploy_war_files() {
     local buildDir="$1"
     
     # customize app build dir
-    local appBuildDir = "${buildDir}/server/zanata-war"
+    local appBuildDir="${buildDir}/server/zanata-war"
 
     if [ ! -d "${appBuildDir}/target" ]; then
         error_return "Could not deploy WAR files: Target directory does not exist"
