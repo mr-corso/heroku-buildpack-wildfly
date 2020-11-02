@@ -343,6 +343,7 @@ _deploy_war_files() {
     
     cp "${buildDir}/wildfly/standalone.xml" "${JBOSS_HOME}/standalone/configuration"
     cp "${buildDir}/wildfly/mysql-connector-java.jar" "${JBOSS_HOME}/standalone/deployments"
+    cp "${buildDir}/wildfly/jboss-cli.xml" "${JBOSS_HOME}/bin"
     
     echo "done" | indent
 }
