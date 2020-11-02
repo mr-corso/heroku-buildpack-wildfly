@@ -161,13 +161,13 @@ download_wildfly() {
     debug_mtime "download.time" "${downloadStart}"
 
     # Verify the checksum
-    status "Verifying SHA1 checksum"
-    local wildflySHA1="$(curl --retry 3 --silent --location "${wildflyUrl}.sha1")"
-    if ! verify_sha1_checksum "${wildflySHA1}" "${targetFilename}"; then
-        mcount "sha1.verification.fail"
-        return 1
-    fi
-    mcount "sha1.verification.success"
+    #status "Verifying SHA1 checksum"
+    #local wildflySHA1="$(curl --retry 3 --silent --location "${wildflyUrl}.sha1")"
+    #if ! verify_sha1_checksum "${wildflySHA1}" "${targetFilename}"; then
+    #    mcount "sha1.verification.fail"
+    #    return 1
+    #fi
+    #mcount "sha1.verification.success"
 }
 
 # Detects the WildFly version from the 'system.properties' file or chooses
